@@ -1,4 +1,10 @@
 import { useState, useEffect, useRef } from "react";
+import hamburgueriaVideo from "./videos/hamburgueria.mp4";
+import confeitariaVideo from "./videos/confeitaria.mp4";
+import restauranteVideo from "./videos/restaurante.mp4";
+import babeariaVideo from "./videos/babearia.mp4";
+import cafeteriaVideo from "./videos/cafeteria.mp4";
+import academiaVideo from "./videos/academia.mp4";
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');`;
 
@@ -402,14 +408,12 @@ function SiteMockup({ tpl }) {
 }
 
 // Vídeos por categoria — em produção use caminhos /public, aqui estão embutidos
-const TRUMANS_VIDEO = "videos/hamburgueria.mp4";
-const CONFEITARIA_VIDEO = "videos/confeitaria.mp4";
-const RESTAURANT_VIDEO = "videos/restaurante.mp4";
-const PIZZA_VIDEO = "videos/pizza.mp4";
-const PERSONAL_VIDEO = "videos/personal.mp4";
-const CAFE_VIDEO = "videos/cafe.mp4";
-const FITNESS_VIDEO = "videos/fitness.mp4";
-const PET_VIDEO = "videos/pet.mp4";
+const TRUMANS_VIDEO = hamburgueriaVideo;
+const CONFEITARIA_VIDEO = confeitariaVideo;
+const RESTAURANT_VIDEO = restauranteVideo;
+const PERSONAL_VIDEO = babeariaVideo;
+const CAFE_VIDEO = cafeteriaVideo;
+const FITNESS_VIDEO = academiaVideo;
 
 const VIDEOS_BY_CAT = {
   burger: [
@@ -424,10 +428,6 @@ const VIDEOS_BY_CAT = {
     { id: 1, video: RESTAURANT_VIDEO }
   ],
 
-  pizza: [
-    { id: 1, video: PIZZA_VIDEO }
-  ],
-
   personal: [
     { id: 1, video: PERSONAL_VIDEO }
   ],
@@ -438,10 +438,7 @@ const VIDEOS_BY_CAT = {
 
   fitness: [
     { id: 1, video: FITNESS_VIDEO }
-  ],
-
-  pet: [
-    { id: 1, video: PET_VIDEO }
+ 
   ]
 };
 

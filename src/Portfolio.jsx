@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-// import hamburgueriaVideo from "./videos/hamburgueria.mp4";
-// import confeitariaVideo from "./videos/confeitaria.mp4";
-// import restauranteVideo from "./videos/restaurante.mp4";
-// import babeariaVideo from "./videos/babearia.mp4";
-// import cafeteriaVideo from "./videos/cafeteria.mp4";
-// import academiaVideo from "./videos/academia.mp4";
+import hamburgueriaVideo from "./videos/hamburgueria.mp4";
+import confeitariaVideo from "./videos/confeitaria.mp4";
+import restauranteVideo from "./videos/restaurante.mp4";
+import babeariaVideo from "./videos/babearia.mp4";
+import cafeteriaVideo from "./videos/cafeteria.mp4";
+import academiaVideo from "./videos/academia.mp4";
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');`;
 
@@ -76,9 +76,11 @@ const CAT_ICONS = {
   ),
   personal: (c) => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"/>
-      <circle cx="12" cy="9" r="2.5"/>
-      <path d="M7 19c0-2.8 2.2-5 5-5s5 2.2 5 5"/>
+      <circle cx="6" cy="6" r="2.5"/>
+      <circle cx="6" cy="18" r="2.5"/>
+      <line x1="20" y1="4" x2="8.12" y2="15.88"/>
+      <line x1="14.47" y1="14.48" x2="20" y2="20"/>
+      <line x1="8.12" y1="8.12" x2="12" y2="12"/>
     </svg>
   ),
   fitness: (c) => (
@@ -98,7 +100,7 @@ const TEMPLATES = [
   { id: "confeitaria", label: "Confeitaria",  color: "#D4A017", desc: "Vitrine de bolos, doces e encomendas pelo WhatsApp" },
   { id: "restaurant", label: "Restaurante",  color: "#C9184A", desc: "Cardápio em destaque com reserva por WhatsApp" },
   { id: "cafe",       label: "Cafeteria",    color: "#8B5E3C", desc: "Atmosfera aconchegante com cardápio visual" },
-  { id: "personal",    label: "Pág. Pessoal", color: "#9B5DE5", desc: "Portfólio, bio e links para profissionais autônomos" },
+  { id: "personal",    label: "Barbearia",    color: "#9B5DE5", desc: "Agendamentos, serviços e contato direto pelo WhatsApp" },
   { id: "fitness",    label: "Academia",     color: "#0077B6", desc: "Planos, horários e captação de alunos" },
 ];
 
@@ -408,18 +410,12 @@ function SiteMockup({ tpl }) {
 }
 
 // Vídeos por categoria — em produção use caminhos /public, aqui estão embutidos
-// const TRUMANS_VIDEO = hamburgueriaVideo;
-// const CONFEITARIA_VIDEO = confeitariaVideo;
-// const RESTAURANT_VIDEO = restauranteVideo;
-// const PERSONAL_VIDEO = babeariaVideo;
-// const CAFE_VIDEO = cafeteriaVideo;
-// const FITNESS_VIDEO = academiaVideo;
-const TRUMANS_VIDEO = null;
-const CONFEITARIA_VIDEO = null;
-const RESTAURANT_VIDEO = null;
-const PERSONAL_VIDEO = null;
-const CAFE_VIDEO = null;
-const FITNESS_VIDEO = null;
+const TRUMANS_VIDEO = hamburgueriaVideo;
+const CONFEITARIA_VIDEO = confeitariaVideo;
+const RESTAURANT_VIDEO = restauranteVideo;
+const PERSONAL_VIDEO = babeariaVideo;
+const CAFE_VIDEO = cafeteriaVideo;
+const FITNESS_VIDEO = academiaVideo;
 
 const VIDEOS_BY_CAT = {
   burger: [

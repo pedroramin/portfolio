@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import hamburgueriaVideo from "./videos/hamburgueria.mp4";
-import confeitariaVideo from "./videos/confeitaria.mp4";
-import restauranteVideo from "./videos/restaurante.mp4";
-import babeariaVideo from "./videos/babearia.mp4";
-import cafeteriaVideo from "./videos/cafeteria.mp4";
-import academiaVideo from "./videos/academia.mp4";
+// import hamburgueriaVideo from "./videos/hamburgueria.mp4";
+// import confeitariaVideo from "./videos/confeitaria.mp4";
+// import restauranteVideo from "./videos/restaurante.mp4";
+// import babeariaVideo from "./videos/babearia.mp4";
+// import cafeteriaVideo from "./videos/cafeteria.mp4";
+// import academiaVideo from "./videos/academia.mp4";
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');`;
 
@@ -408,12 +408,18 @@ function SiteMockup({ tpl }) {
 }
 
 // Vídeos por categoria — em produção use caminhos /public, aqui estão embutidos
-const TRUMANS_VIDEO = hamburgueriaVideo;
-const CONFEITARIA_VIDEO = confeitariaVideo;
-const RESTAURANT_VIDEO = restauranteVideo;
-const PERSONAL_VIDEO = babeariaVideo;
-const CAFE_VIDEO = cafeteriaVideo;
-const FITNESS_VIDEO = academiaVideo;
+// const TRUMANS_VIDEO = hamburgueriaVideo;
+// const CONFEITARIA_VIDEO = confeitariaVideo;
+// const RESTAURANT_VIDEO = restauranteVideo;
+// const PERSONAL_VIDEO = babeariaVideo;
+// const CAFE_VIDEO = cafeteriaVideo;
+// const FITNESS_VIDEO = academiaVideo;
+const TRUMANS_VIDEO = null;
+const CONFEITARIA_VIDEO = null;
+const RESTAURANT_VIDEO = null;
+const PERSONAL_VIDEO = null;
+const CAFE_VIDEO = null;
+const FITNESS_VIDEO = null;
 
 const VIDEOS_BY_CAT = {
   burger: [

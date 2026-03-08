@@ -165,6 +165,114 @@ function Navbar({ onContact }) {
   );
 }
 
+// ─── Hero Phone Mockup ────────────────────────────────────────────────────────
+const HERO_PREVIEWS = [
+  { id: "burger",      label: "Hamburgueria", color: "#E85D04", emoji: "🍔", tagline: "Os melhores smash burgers da cidade",   items: ["Classic Smash", "Double Bacon", "Crispy Chicken"] },
+  { id: "personal",   label: "Barbearia",    color: "#9B5DE5", emoji: "✂️",  tagline: "Cortes que falam por si",              items: ["Corte Degradê", "Barba Completa", "Combo Social"] },
+  { id: "restaurant", label: "Restaurante",  color: "#C9184A", emoji: "🍽️",  tagline: "Sabor de casa, experiência única",     items: ["Prato do Dia", "Frutos do Mar", "Sobremesas"] },
+  { id: "cafe",       label: "Cafeteria",    color: "#8B5E3C", emoji: "☕",  tagline: "Cada xícara conta uma história",       items: ["Espresso", "Cappuccino", "Croissant"] },
+  { id: "confeitaria",label: "Confeitaria",  color: "#D4A017", emoji: "🎂",  tagline: "Doces que encantam, encomendas fáceis",items: ["Bolo Naked", "Cupcakes", "Brigadeiros"] },
+  { id: "fitness",    label: "Academia",     color: "#0077B6", emoji: "💪",  tagline: "Seu corpo. Sua evolução.",             items: ["Musculação", "Funcional", "Spinning"] },
+];
+
+function HeroPhoneMockup({ preview, visible }) {
+  const c = preview.color;
+  const bgs = { burger:"#120800", personal:"#071210", restaurant:"#120008", cafe:"#100c07", confeitaria:"#120d00", fitness:"#060d14" };
+  const bg = bgs[preview.id] || "#111";
+
+  return (
+    <div style={{
+      transition: "opacity .4s ease, transform .4s ease",
+      opacity: visible ? 1 : 0,
+      transform: visible ? "translateY(0)" : "translateY(16px)",
+      position: "absolute", top: 0, left: 0, width: "100%",
+    }}>
+      {/* Phone shell */}
+      <div style={{
+        background: "#1a1a1a",
+        borderRadius: "32px",
+        padding: "10px",
+        boxShadow: `0 40px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.07), 0 0 60px ${c}18`,
+        maxWidth: "220px",
+        margin: "0 auto",
+      }}>
+        {/* Notch */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "6px" }}>
+          <div style={{ width: "60px", height: "5px", background: "#111", borderRadius: "10px" }} />
+        </div>
+
+        {/* Screen */}
+        <div style={{ background: bg, borderRadius: "22px", overflow: "hidden" }}>
+          {/* Status bar */}
+          <div style={{ background: "rgba(0,0,0,.3)", padding: "5px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: "7px", color: "rgba(255,255,255,.4)", fontFamily: "'DM Sans'" }}>9:41</span>
+            <div style={{ display: "flex", gap: "3px", alignItems: "center" }}>
+              {[10,7,5].map((w,i) => <div key={i} style={{ width: `${w}px`, height: "4px", background: "rgba(255,255,255,.3)", borderRadius: "1px" }} />)}
+            </div>
+          </div>
+
+          {/* App hero */}
+          <div style={{ background: `linear-gradient(160deg, ${bg} 0%, ${c}22 100%)`, padding: "14px 12px 12px" }}>
+            {/* Nav */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                <div style={{ fontSize: "11px" }}>{preview.emoji}</div>
+                <div style={{ height: "5px", width: "36px", background: `${c}70`, borderRadius: "3px" }} />
+              </div>
+              <div style={{ width: "36px", height: "12px", background: "#25D366", borderRadius: "4px", opacity: 0.85 }} />
+            </div>
+
+            {/* Headline */}
+            <div style={{ height: "9px", width: "75%", background: `${c}80`, borderRadius: "4px", marginBottom: "5px" }} />
+            <div style={{ height: "6px", width: "90%", background: "rgba(255,255,255,.12)", borderRadius: "3px", marginBottom: "3px" }} />
+            <div style={{ height: "6px", width: "55%", background: "rgba(255,255,255,.07)", borderRadius: "3px", marginBottom: "8px" }} />
+            <div style={{ fontSize: "7px", color: `${c}cc`, fontFamily: "'DM Sans'", marginBottom: "10px", fontWeight: 500 }}>
+              {preview.tagline}
+            </div>
+
+            {/* CTA */}
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", background: "#25D366", borderRadius: "5px", padding: "4px 10px" }}>
+              <div style={{ height: "5px", width: "5px", background: "rgba(255,255,255,.6)", borderRadius: "50%" }} />
+              <div style={{ height: "5px", width: "44px", background: "rgba(255,255,255,.7)", borderRadius: "2px" }} />
+            </div>
+          </div>
+
+          {/* Services */}
+          <div style={{ padding: "10px 12px 4px" }}>
+            <div style={{ height: "5px", width: "35%", background: `${c}40`, borderRadius: "2px", marginBottom: "7px" }} />
+            <div style={{ display: "flex", gap: "5px" }}>
+              {preview.items.map((item, i) => (
+                <div key={i} style={{
+                  flex: 1, background: `${c}12`, border: `1px solid ${c}20`,
+                  borderRadius: "6px", padding: "6px 4px", textAlign: "center"
+                }}>
+                  <div style={{ height: "3px", background: `${c}50`, borderRadius: "2px", marginBottom: "4px" }} />
+                  <div style={{ fontSize: "5.5px", color: `${c}99`, fontFamily: "'DM Sans'", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Info */}
+          <div style={{ padding: "8px 12px 12px", display: "flex", gap: "8px" }}>
+            {["📍 Rua Exemplo, 123", "⏰ 11h – 23h"].map((info, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+                <span style={{ fontSize: "6px" }}>{info.split(" ")[0]}</span>
+                <div style={{ height: "3px", width: i === 0 ? "44px" : "32px", background: "rgba(255,255,255,.08)", borderRadius: "2px" }} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Home indicator */}
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "6px" }}>
+          <div style={{ width: "50px", height: "4px", background: "rgba(255,255,255,.15)", borderRadius: "10px" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero({ onContact }) {
   const [tick, setTick] = useState(true);
@@ -173,7 +281,7 @@ function Hero({ onContact }) {
     return () => clearInterval(t);
   }, []);
 
-  const words = ["hamburguerias", "barbearias", "restaurantes", "cafeterias", "salões", "academias"];
+  const words = ["hamburguerias", "barbearias", "restaurantes", "cafeterias", "confeitarias", "academias"];
   const [wi, setWi] = useState(0);
   const [fade, setFade] = useState(true);
   useEffect(() => {
@@ -199,76 +307,109 @@ function Hero({ onContact }) {
         userSelect: "none", pointerEvents: "none", whiteSpace: "nowrap", lineHeight: 1,
       }}>PEDRO RAMOS</div>
 
-      {/* Floating dot */}
+      {/* Floating glow */}
       <div style={{
         position: "absolute", top: "20%", right: "8%",
-        width: "180px", height: "180px", borderRadius: "50%",
-        background: `radial-gradient(circle, ${ACCENT}20 0%, transparent 70%)`,
+        width: "280px", height: "280px", borderRadius: "50%",
+        background: `radial-gradient(circle, ${ACCENT}12 0%, transparent 70%)`,
         animation: "float 4s ease-in-out infinite",
+        pointerEvents: "none",
       }} />
 
-      <div style={{ position: "relative", zIndex: 1 }}>
-        {/* Tag */}
-        <div className="fade-up" style={{
-          display: "inline-flex", alignItems: "center", gap: "8px",
-          border: "1px solid rgba(255,255,255,0.1)", borderRadius: "100px",
-          padding: "6px 14px", marginBottom: "32px",
-          fontSize: "12px", color: "#666", letterSpacing: ".5px"
-        }}>
-          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: ACCENT, animation: "blink 1.5s ease infinite" }} />
-          Disponível para novos projetos
+      {/* Two-column layout */}
+      <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "40px" }}>
+
+        {/* LEFT — text */}
+        <div style={{ flex: "1 1 0", minWidth: 0 }}>
+          {/* Tag */}
+          <div className="fade-up" style={{
+            display: "inline-flex", alignItems: "center", gap: "8px",
+            border: "1px solid rgba(255,255,255,0.1)", borderRadius: "100px",
+            padding: "6px 14px", marginBottom: "32px",
+            fontSize: "12px", color: "#666", letterSpacing: ".5px"
+          }}>
+            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: ACCENT, animation: "blink 1.5s ease infinite" }} />
+            Disponível para novos projetos
+          </div>
+
+          {/* Name */}
+          <h1 className="fade-up" style={{
+            fontFamily: "'Bebas Neue'", fontSize: "clamp(64px, 9vw, 120px)",
+            lineHeight: .95, letterSpacing: "-1px", marginBottom: "24px",
+            animationDelay: ".1s"
+          }}>
+            Ramos<br />
+            <span style={{ color: ACCENT }}>Dev</span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className="fade-up" style={{
+            fontSize: "clamp(15px, 1.8vw, 19px)", color: "#888",
+            maxWidth: "460px", lineHeight: 1.6, marginBottom: "16px",
+            animationDelay: ".2s", fontWeight: 300,
+          }}>
+            Desenvolvo sites profissionais para{" "}
+            <span style={{
+              color: ACCENT, fontFamily: "'Instrument Serif'", fontStyle: "italic",
+              fontSize: "110%", transition: "opacity .3s",
+              opacity: fade ? 1 : 0,
+            }}>{words[wi]}</span>
+            <span style={{ opacity: tick ? 1 : 0, color: ACCENT }}>_</span>
+          </p>
+
+          <p className="fade-up" style={{ fontSize: "14px", color: "#444", maxWidth: "400px", lineHeight: 1.7, marginBottom: "44px", animationDelay: ".25s" }}>
+            Sites rápidos, bonitos e que realmente trazem clientes pro seu negócio — sem complicação.
+          </p>
+
+          <div className="fade-up" style={{ display: "flex", gap: "12px", flexWrap: "wrap", animationDelay: ".35s" }}>
+            <button onClick={onContact} style={{
+              background: ACCENT, border: "none", borderRadius: "10px",
+              padding: "14px 28px", color: "#0b0b0b", fontFamily: "'DM Sans'",
+              fontSize: "15px", fontWeight: 600, cursor: "pointer", transition: "all .25s",
+            }}
+              onMouseEnter={e => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = `0 10px 32px ${ACCENT}50`; }}
+              onMouseLeave={e => { e.target.style.transform = ""; e.target.style.boxShadow = ""; }}>
+              Quero um site assim →
+            </button>
+            <a href="#projetos" style={{
+              background: "transparent", border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: "10px", padding: "14px 24px", color: "#888",
+              fontFamily: "'DM Sans'", fontSize: "15px", cursor: "pointer",
+              transition: "all .2s", textDecoration: "none", display: "inline-block"
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; e.currentTarget.style.color = "#e8e4dc"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#888"; }}>
+              Ver projetos
+            </a>
+          </div>
         </div>
 
-        {/* Name */}
-        <h1 className="fade-up" style={{
-          fontFamily: "'Bebas Neue'", fontSize: "clamp(64px, 10vw, 130px)",
-          lineHeight: .95, letterSpacing: "-1px", marginBottom: "24px",
-          animationDelay: ".1s"
+        {/* RIGHT — phone mockup */}
+        <div className="fade-in" style={{
+          flex: "0 0 260px", display: "flex", flexDirection: "column",
+          alignItems: "center", animationDelay: ".4s",
         }}>
-          Ramos<br />
-          <span style={{ color: ACCENT }}>Dev</span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="fade-up" style={{
-          fontSize: "clamp(16px, 2vw, 20px)", color: "#888",
-          maxWidth: "520px", lineHeight: 1.6, marginBottom: "16px",
-          animationDelay: ".2s", fontWeight: 300,
-        }}>
-          Desenvolvo sites profissionais para{" "}
-          <span style={{
-            color: ACCENT, fontFamily: "'Instrument Serif'", fontStyle: "italic",
-            fontSize: "110%", transition: "opacity .3s",
-            opacity: fade ? 1 : 0,
-          }}>{words[wi]}</span>
-          <span style={{ opacity: tick ? 1 : 0, color: ACCENT }}>_</span>
-        </p>
-
-        <p className="fade-up" style={{ fontSize: "14px", color: "#444", maxWidth: "420px", lineHeight: 1.7, marginBottom: "44px", animationDelay: ".25s" }}>
-          Sites rápidos, bonitos e que realmente trazem clientes pro seu negócio — sem complicação.
-        </p>
-
-        <div className="fade-up" style={{ display: "flex", gap: "12px", animationDelay: ".35s" }}>
-          <button onClick={onContact} style={{
-            background: ACCENT, border: "none", borderRadius: "10px",
-            padding: "14px 28px", color: "#0b0b0b", fontFamily: "'DM Sans'",
-            fontSize: "15px", fontWeight: 600, cursor: "pointer", transition: "all .25s",
-          }}
-            onMouseEnter={e => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = `0 10px 32px ${ACCENT}50`; }}
-            onMouseLeave={e => { e.target.style.transform = ""; e.target.style.boxShadow = ""; }}>
-            Quero um site assim →
-          </button>
-          <a href="#projetos" style={{
-            background: "transparent", border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: "10px", padding: "14px 24px", color: "#888",
-            fontFamily: "'DM Sans'", fontSize: "15px", cursor: "pointer",
-            transition: "all .2s", textDecoration: "none", display: "inline-block"
-          }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; e.currentTarget.style.color = "#e8e4dc"; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#888"; }}>
-            Ver projetos
-          </a>
+          <div style={{ position: "relative", width: "220px", height: "420px" }}>
+            {HERO_PREVIEWS.map((p, i) => (
+              <HeroPhoneMockup key={p.id} preview={p} visible={i === wi} />
+            ))}
+          </div>
+          {/* Dots indicator */}
+          <div style={{ display: "flex", gap: "6px", marginTop: "20px" }}>
+            {HERO_PREVIEWS.map((p, i) => (
+              <div key={p.id} style={{
+                width: i === wi ? "18px" : "6px", height: "6px",
+                borderRadius: "3px",
+                background: i === wi ? HERO_PREVIEWS[wi].color : "rgba(255,255,255,.1)",
+                transition: "all .3s ease",
+              }} />
+            ))}
+          </div>
+          <p style={{ fontSize: "10px", color: "#333", marginTop: "10px", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+            {HERO_PREVIEWS[wi].label}
+          </p>
         </div>
+
       </div>
 
       {/* Scroll hint */}

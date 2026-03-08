@@ -165,108 +165,109 @@ function Navbar({ onContact }) {
   );
 }
 
-// ─── Hero Phone Mockup ────────────────────────────────────────────────────────
-const HERO_PREVIEWS = [
-  { id: "burger",      label: "Hamburgueria", color: "#E85D04", emoji: "🍔", tagline: "Os melhores smash burgers da cidade",   items: ["Classic Smash", "Double Bacon", "Crispy Chicken"] },
-  { id: "personal",   label: "Barbearia",    color: "#9B5DE5", emoji: "✂️",  tagline: "Cortes que falam por si",              items: ["Corte Degradê", "Barba Completa", "Combo Social"] },
-  { id: "restaurant", label: "Restaurante",  color: "#C9184A", emoji: "🍽️",  tagline: "Sabor de casa, experiência única",     items: ["Prato do Dia", "Frutos do Mar", "Sobremesas"] },
-  { id: "cafe",       label: "Cafeteria",    color: "#8B5E3C", emoji: "☕",  tagline: "Cada xícara conta uma história",       items: ["Espresso", "Cappuccino", "Croissant"] },
-  { id: "confeitaria",label: "Confeitaria",  color: "#D4A017", emoji: "🎂",  tagline: "Doces que encantam, encomendas fáceis",items: ["Bolo Naked", "Cupcakes", "Brigadeiros"] },
-  { id: "fitness",    label: "Academia",     color: "#0077B6", emoji: "💪",  tagline: "Seu corpo. Sua evolução.",             items: ["Musculação", "Funcional", "Spinning"] },
+// ─── Hero Terminal ────────────────────────────────────────────────────────────
+const TERMINAL_LINES = [
+  { text: "$ ramos-dev create hamburgeria-roots", color: ACCENT },
+  { text: "  ✔ Projeto iniciado com sucesso", color: "#666" },
+  { text: "  ✔ Componentes carregados", color: "#666" },
+  { text: "  ✔ WhatsApp integrado", color: "#666" },
+  { text: "  ✔ SEO configurado", color: "#666" },
+  { text: "$ ramos-dev deploy --production", color: ACCENT },
+  { text: "  ↑ Enviando para o servidor...", color: "#555" },
+  { text: "  ✔ Build concluído em 2.4s", color: "#666" },
+  { text: "  ✔ Site no ar: hamburgeria-roots.com.br", color: ACCENT },
+  { text: "", color: "" },
+  { text: "$ ramos-dev create barbearia-kings", color: ACCENT },
+  { text: "  ✔ Projeto iniciado com sucesso", color: "#666" },
+  { text: "  ✔ Galeria de cortes configurada", color: "#666" },
+  { text: "  ✔ Agendamento via WhatsApp ativo", color: "#666" },
+  { text: "$ ramos-dev deploy --production", color: ACCENT },
+  { text: "  ✔ Build concluído em 1.9s", color: "#666" },
+  { text: "  ✔ Site no ar: barbearia-kings.com.br", color: ACCENT },
+  { text: "", color: "" },
+  { text: "$ ramos-dev create cafeteria-origem", color: ACCENT },
+  { text: "  ✔ Cardápio visual montado", color: "#666" },
+  { text: "  ✔ Localização integrada", color: "#666" },
+  { text: "$ ramos-dev deploy --production", color: ACCENT },
+  { text: "  ✔ Site no ar: cafeteria-origem.com.br", color: ACCENT },
 ];
 
-function HeroPhoneMockup({ preview, visible }) {
-  const c = preview.color;
-  const bgs = { burger:"#120800", personal:"#071210", restaurant:"#120008", cafe:"#100c07", confeitaria:"#120d00", fitness:"#060d14" };
-  const bg = bgs[preview.id] || "#111";
+function HeroTerminal() {
+  const [visibleCount, setVisibleCount] = useState(0);
+  const [cursor, setCursor] = useState(true);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (visibleCount >= TERMINAL_LINES.length) return;
+    const delay = TERMINAL_LINES[visibleCount]?.text === "" ? 200
+      : TERMINAL_LINES[visibleCount]?.color === ACCENT ? 600 : 180;
+    const t = setTimeout(() => setVisibleCount(v => v + 1), delay);
+    return () => clearTimeout(t);
+  }, [visibleCount]);
+
+  // loop infinito
+  useEffect(() => {
+    if (visibleCount < TERMINAL_LINES.length) return;
+    const t = setTimeout(() => setVisibleCount(0), 3000);
+    return () => clearTimeout(t);
+  }, [visibleCount]);
+
+  useEffect(() => {
+    const t = setInterval(() => setCursor(c => !c), 530);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [visibleCount]);
 
   return (
     <div style={{
-      transition: "opacity .4s ease, transform .4s ease",
-      opacity: visible ? 1 : 0,
-      transform: visible ? "translateY(0)" : "translateY(16px)",
-      position: "absolute", top: 0, left: 0, width: "100%",
+      background: "#0d0d0d",
+      border: "1px solid rgba(180,255,120,0.15)",
+      borderRadius: "14px",
+      overflow: "hidden",
+      boxShadow: "0 32px 80px rgba(0,0,0,.6), 0 0 40px rgba(180,255,120,0.05)",
+      fontFamily: "'Courier New', Courier, monospace",
     }}>
-      {/* Phone shell */}
+      {/* Barra do terminal */}
       <div style={{
-        background: "#1a1a1a",
-        borderRadius: "32px",
-        padding: "10px",
-        boxShadow: `0 40px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.07), 0 0 60px ${c}18`,
-        maxWidth: "220px",
-        margin: "0 auto",
+        background: "#161616",
+        padding: "10px 14px",
+        display: "flex", alignItems: "center", gap: "8px",
+        borderBottom: "1px solid rgba(255,255,255,0.05)",
       }}>
-        {/* Notch */}
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "6px" }}>
-          <div style={{ width: "60px", height: "5px", background: "#111", borderRadius: "10px" }} />
+        <div style={{ display: "flex", gap: "6px" }}>
+          {["#ff5f57","#febc2e","#28c840"].map(c => (
+            <div key={c} style={{ width: "10px", height: "10px", borderRadius: "50%", background: c }} />
+          ))}
         </div>
+        <span style={{ fontSize: "11px", color: "#333", marginLeft: "8px", letterSpacing: ".5px" }}>
+          ramos-dev — terminal
+        </span>
+      </div>
 
-        {/* Screen */}
-        <div style={{ background: bg, borderRadius: "22px", overflow: "hidden" }}>
-          {/* Status bar */}
-          <div style={{ background: "rgba(0,0,0,.3)", padding: "5px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "7px", color: "rgba(255,255,255,.4)", fontFamily: "'DM Sans'" }}>9:41</span>
-            <div style={{ display: "flex", gap: "3px", alignItems: "center" }}>
-              {[10,7,5].map((w,i) => <div key={i} style={{ width: `${w}px`, height: "4px", background: "rgba(255,255,255,.3)", borderRadius: "1px" }} />)}
-            </div>
+      {/* Conteúdo */}
+      <div ref={scrollRef} style={{
+        padding: "18px 20px",
+        height: "320px",
+        overflowY: "hidden",
+        display: "flex", flexDirection: "column", gap: "4px",
+      }}>
+        {TERMINAL_LINES.slice(0, visibleCount).map((line, i) => (
+          <div key={i} style={{
+            fontSize: "12px",
+            color: line.color || "transparent",
+            lineHeight: 1.7,
+            letterSpacing: line.color === ACCENT ? ".3px" : "0",
+            fontWeight: line.color === ACCENT ? 600 : 400,
+          }}>
+            {line.text || "\u00a0"}
           </div>
-
-          {/* App hero */}
-          <div style={{ background: `linear-gradient(160deg, ${bg} 0%, ${c}22 100%)`, padding: "14px 12px 12px" }}>
-            {/* Nav */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <div style={{ fontSize: "11px" }}>{preview.emoji}</div>
-                <div style={{ height: "5px", width: "36px", background: `${c}70`, borderRadius: "3px" }} />
-              </div>
-              <div style={{ width: "36px", height: "12px", background: "#25D366", borderRadius: "4px", opacity: 0.85 }} />
-            </div>
-
-            {/* Headline */}
-            <div style={{ height: "9px", width: "75%", background: `${c}80`, borderRadius: "4px", marginBottom: "5px" }} />
-            <div style={{ height: "6px", width: "90%", background: "rgba(255,255,255,.12)", borderRadius: "3px", marginBottom: "3px" }} />
-            <div style={{ height: "6px", width: "55%", background: "rgba(255,255,255,.07)", borderRadius: "3px", marginBottom: "8px" }} />
-            <div style={{ fontSize: "7px", color: `${c}cc`, fontFamily: "'DM Sans'", marginBottom: "10px", fontWeight: 500 }}>
-              {preview.tagline}
-            </div>
-
-            {/* CTA */}
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", background: "#25D366", borderRadius: "5px", padding: "4px 10px" }}>
-              <div style={{ height: "5px", width: "5px", background: "rgba(255,255,255,.6)", borderRadius: "50%" }} />
-              <div style={{ height: "5px", width: "44px", background: "rgba(255,255,255,.7)", borderRadius: "2px" }} />
-            </div>
-          </div>
-
-          {/* Services */}
-          <div style={{ padding: "10px 12px 4px" }}>
-            <div style={{ height: "5px", width: "35%", background: `${c}40`, borderRadius: "2px", marginBottom: "7px" }} />
-            <div style={{ display: "flex", gap: "5px" }}>
-              {preview.items.map((item, i) => (
-                <div key={i} style={{
-                  flex: 1, background: `${c}12`, border: `1px solid ${c}20`,
-                  borderRadius: "6px", padding: "6px 4px", textAlign: "center"
-                }}>
-                  <div style={{ height: "3px", background: `${c}50`, borderRadius: "2px", marginBottom: "4px" }} />
-                  <div style={{ fontSize: "5.5px", color: `${c}99`, fontFamily: "'DM Sans'", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Info */}
-          <div style={{ padding: "8px 12px 12px", display: "flex", gap: "8px" }}>
-            {["📍 Rua Exemplo, 123", "⏰ 11h – 23h"].map((info, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-                <span style={{ fontSize: "6px" }}>{info.split(" ")[0]}</span>
-                <div style={{ height: "3px", width: i === 0 ? "44px" : "32px", background: "rgba(255,255,255,.08)", borderRadius: "2px" }} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Home indicator */}
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "6px" }}>
-          <div style={{ width: "50px", height: "4px", background: "rgba(255,255,255,.15)", borderRadius: "10px" }} />
+        ))}
+        {/* cursor piscando */}
+        <div style={{ fontSize: "12px", color: ACCENT, lineHeight: 1.7 }}>
+          <span style={{ opacity: cursor ? 1 : 0 }}>▋</span>
         </div>
       </div>
     </div>
@@ -384,30 +385,11 @@ function Hero({ onContact }) {
           </div>
         </div>
 
-        {/* RIGHT — phone mockup */}
+        {/* RIGHT — terminal */}
         <div className="fade-in" style={{
-          flex: "0 0 260px", display: "flex", flexDirection: "column",
-          alignItems: "center", animationDelay: ".4s",
+          flex: "0 0 420px", animationDelay: ".4s",
         }}>
-          <div style={{ position: "relative", width: "220px", height: "420px" }}>
-            {HERO_PREVIEWS.map((p, i) => (
-              <HeroPhoneMockup key={p.id} preview={p} visible={i === wi} />
-            ))}
-          </div>
-          {/* Dots indicator */}
-          <div style={{ display: "flex", gap: "6px", marginTop: "20px" }}>
-            {HERO_PREVIEWS.map((p, i) => (
-              <div key={p.id} style={{
-                width: i === wi ? "18px" : "6px", height: "6px",
-                borderRadius: "3px",
-                background: i === wi ? HERO_PREVIEWS[wi].color : "rgba(255,255,255,.1)",
-                transition: "all .3s ease",
-              }} />
-            ))}
-          </div>
-          <p style={{ fontSize: "10px", color: "#333", marginTop: "10px", letterSpacing: "1.5px", textTransform: "uppercase" }}>
-            {HERO_PREVIEWS[wi].label}
-          </p>
+          <HeroTerminal />
         </div>
 
       </div>

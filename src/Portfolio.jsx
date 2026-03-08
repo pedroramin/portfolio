@@ -542,7 +542,7 @@ function Trabalhos({ onContact }) {
                             padding: "4px 10px", border: `1px solid ${tpl.color}30`,
                           }}>
                             <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: tpl.color, animation: "blink 1.5s ease infinite" }} />
-                            <span style={{ fontSize: "10px", color: tpl.color, letterSpacing: ".5px" }}>AO VIVO</span>
+                            <span style={{ fontSize: "10px", color: tpl.color, letterSpacing: ".5px" }}>EXEMPLO</span>
                           </div>
                         ) : (
                           <span style={{ fontSize: "10px", color: "#2a2a2a", letterSpacing: "1px", padding: "4px 10px", border: "1px solid #1a1a1a", borderRadius: "20px" }}>EM BREVE</span>

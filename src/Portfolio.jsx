@@ -6,7 +6,7 @@ import babeariaVideo from "./videos/babearia.mp4";
 import cafeteriaVideo from "./videos/cafeteria.mp4";
 import academiaVideo from "./videos/academia.mp4";
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap');`;
 
 const CSS = `
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -223,50 +223,53 @@ function HeroTerminal() {
 
   return (
     <div style={{
-      background: "#0d0d0d",
-      border: "1px solid rgba(180,255,120,0.15)",
-      borderRadius: "14px",
+      background: "#080808",
+      border: "1px solid rgba(180,255,120,0.1)",
+      borderRadius: "12px",
       overflow: "hidden",
-      boxShadow: "0 32px 80px rgba(0,0,0,.6), 0 0 40px rgba(180,255,120,0.05)",
-      fontFamily: "'Courier New', Courier, monospace",
+      boxShadow: "0 0 0 1px rgba(255,255,255,0.03), 0 32px 80px rgba(0,0,0,.7), 0 0 60px rgba(180,255,120,0.04)",
+      fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
     }}>
-      {/* Barra do terminal */}
+      {/* Cabeçalho minimalista */}
       <div style={{
-        background: "#161616",
-        padding: "10px 14px",
-        display: "flex", alignItems: "center", gap: "8px",
-        borderBottom: "1px solid rgba(255,255,255,0.05)",
+        padding: "12px 18px",
+        borderBottom: "1px solid rgba(255,255,255,0.04)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
-        <div style={{ display: "flex", gap: "6px" }}>
-          {["#ff5f57","#febc2e","#28c840"].map(c => (
-            <div key={c} style={{ width: "10px", height: "10px", borderRadius: "50%", background: c }} />
-          ))}
-        </div>
-        <span style={{ fontSize: "11px", color: "#333", marginLeft: "8px", letterSpacing: ".5px" }}>
-          ramos-dev — terminal
+        <span style={{
+          fontSize: "11px", color: "rgba(180,255,120,0.4)",
+          letterSpacing: "1.5px", textTransform: "lowercase",
+          fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+        }}>
+          ramos.dev/terminal
         </span>
+        <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+          <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(180,255,120,0.5)", animation: "blink 1.5s ease infinite" }} />
+          <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.15)", letterSpacing: "1px" }}>LIVE</span>
+        </div>
       </div>
 
       {/* Conteúdo */}
       <div ref={scrollRef} style={{
-        padding: "18px 20px",
-        height: "320px",
+        padding: "20px 22px 22px",
+        height: "310px",
         overflowY: "hidden",
-        display: "flex", flexDirection: "column", gap: "4px",
+        display: "flex", flexDirection: "column", gap: "2px",
       }}>
         {TERMINAL_LINES.slice(0, visibleCount).map((line, i) => (
           <div key={i} style={{
-            fontSize: "12px",
-            color: line.color || "transparent",
-            lineHeight: 1.7,
-            letterSpacing: line.color === ACCENT ? ".3px" : "0",
-            fontWeight: line.color === ACCENT ? 600 : 400,
+            fontSize: "11.5px",
+            color: line.color === ACCENT ? ACCENT : line.color || "transparent",
+            lineHeight: 1.75,
+            letterSpacing: "0.2px",
+            fontWeight: 400,
+            textShadow: line.color === ACCENT ? `0 0 12px ${ACCENT}60` : "none",
           }}>
             {line.text || "\u00a0"}
           </div>
         ))}
         {/* cursor piscando */}
-        <div style={{ fontSize: "12px", color: ACCENT, lineHeight: 1.7 }}>
+        <div style={{ fontSize: "11.5px", color: ACCENT, lineHeight: 1.75, textShadow: `0 0 10px ${ACCENT}80` }}>
           <span style={{ opacity: cursor ? 1 : 0 }}>▋</span>
         </div>
       </div>

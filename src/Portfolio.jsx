@@ -167,61 +167,96 @@ function Navbar({ onContact }) {
 
 // ─── Hero Indicators ──────────────────────────────────────────────────────────
 const INDICATORS = [
-  { value: "12+",  label: "projetos desenvolvidos",        accent: true  },
-  { value: "→",    label: "sites rápidos e otimizados",    accent: false },
-  { value: "AI",   label: "desenvolvimento com apoio de IA", accent: true },
-  { value: "→",    label: "foco em performance e conversão", accent: false },
-  { value: "100%", label: "interfaces responsivas",         accent: true  },
-  { value: "→",    label: "entrega moderna e eficiente",    accent: false },
+  { value: "12+",   label: "projetos desenvolvidos"              },
+  { value: "→",     label: "sites rápidos e otimizados"          },
+  { value: "AI",    label: "desenvolvimento com apoio de IA"     },
+  { value: "→",     label: "foco em performance e conversão"     },
+  { value: "100%",  label: "interfaces responsivas"              },
+  { value: "→",     label: "entrega moderna e eficiente"         },
+  { value: "</>",   label: "código limpo e organizado"           },
+  { value: "→",     label: "projetos do zero ao ar em dias"      },
+  { value: "SEO",   label: "otimizado para buscas"               },
+  { value: "→",     label: "mais clientes pelo Google"           },
+  { value: "24h",   label: "suporte pós-entrega"                 },
+  { value: "→",     label: "parceria de longo prazo"             },
 ];
 
 function HeroIndicators() {
-  const [visible, setVisible] = useState([]);
-  const [done, setDone]       = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [phase, setPhase] = useState("enter"); // enter | visible | exit
 
   useEffect(() => {
-    if (done) return;
-    if (visible.length >= INDICATORS.length) { setDone(true); return; }
+    const durations = { enter: 600, visible: 2200, exit: 500 };
     const t = setTimeout(() => {
-      setVisible(v => [...v, v.length]);
-    }, visible.length === 0 ? 600 : 480);
+      if (phase === "enter")   setPhase("visible");
+      if (phase === "visible") setPhase("exit");
+      if (phase === "exit") {
+        setActiveIndex(i => (i + 1) % INDICATORS.length);
+        setPhase("enter");
+      }
+    }, durations[phase]);
     return () => clearTimeout(t);
-  }, [visible, done]);
+  }, [phase, activeIndex]);
+
+  const item = INDICATORS[activeIndex];
+  const isAccent = item.value !== "→";
+
+  const opacity = phase === "enter" ? 1 : phase === "exit" ? 0 : 1;
+  const translateY = phase === "enter" ? 0 : phase === "exit" ? -8 : 0;
+  const initialY = phase === "enter" ? 8 : 0;
 
   return (
     <div style={{
-      display: "flex", flexDirection: "column", gap: "22px",
-      paddingLeft: "8px",
+      paddingLeft: "20px",
       borderLeft: `1px solid rgba(180,255,120,0.1)`,
+      height: "120px",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      gap: "10px",
     }}>
-      {INDICATORS.map((item, i) => (
-        <div key={i} style={{
-          display: "flex", alignItems: "baseline", gap: "10px",
-          opacity: visible.includes(i) ? 1 : 0,
-          transform: visible.includes(i) ? "translateY(0)" : "translateY(10px)",
-          transition: "opacity 0.6s ease, transform 0.6s ease",
+      {/* Indicador principal animado */}
+      <div style={{
+        opacity,
+        transform: `translateY(${phase === "enter" ? initialY : translateY}px)`,
+        transition: `opacity ${phase === "enter" ? "0.6s" : "0.5s"} ease, transform ${phase === "enter" ? "0.6s" : "0.5s"} ease`,
+      }}>
+        <div style={{
+          fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+          fontSize: isAccent ? "28px" : "14px",
+          fontWeight: 600,
+          color: isAccent ? ACCENT : "rgba(255,255,255,0.2)",
+          letterSpacing: isAccent ? "-0.5px" : "2px",
+          lineHeight: 1,
+          marginBottom: "8px",
+          textShadow: isAccent ? `0 0 24px ${ACCENT}50` : "none",
         }}>
-          <span style={{
-            fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-            fontSize: item.accent ? "13px" : "10px",
-            fontWeight: 600,
-            color: item.accent ? ACCENT : "rgba(255,255,255,0.15)",
-            letterSpacing: "0.5px",
-            minWidth: "36px",
-            textShadow: item.accent ? `0 0 14px ${ACCENT}50` : "none",
-          }}>
-            {item.value}
-          </span>
-          <span style={{
-            fontSize: "12px",
-            color: item.accent ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.18)",
-            letterSpacing: "0.3px",
-            fontWeight: 300,
-          }}>
-            {item.label}
-          </span>
+          {item.value}
         </div>
-      ))}
+        <div style={{
+          fontSize: "12px",
+          color: isAccent ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.18)",
+          letterSpacing: "0.3px",
+          fontWeight: 300,
+          lineHeight: 1.5,
+        }}>
+          {item.label}
+        </div>
+      </div>
+
+      {/* Dots de progresso */}
+      <div style={{ display: "flex", gap: "5px", marginTop: "6px" }}>
+        {INDICATORS.map((_, i) => (
+          <div key={i} style={{
+            width: i === activeIndex ? "16px" : "4px",
+            height: "3px",
+            borderRadius: "2px",
+            background: i === activeIndex ? ACCENT : "rgba(255,255,255,0.08)",
+            transition: "all 0.4s ease",
+            boxShadow: i === activeIndex ? `0 0 6px ${ACCENT}60` : "none",
+          }} />
+        ))}
+      </div>
     </div>
   );
 }

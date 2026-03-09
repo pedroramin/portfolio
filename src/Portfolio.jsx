@@ -168,17 +168,11 @@ function Navbar({ onContact }) {
 // ─── Hero Indicators ──────────────────────────────────────────────────────────
 const INDICATORS = [
   { value: "12+",   label: "projetos desenvolvidos"              },
-  { value: "→",     label: "sites rápidos e otimizados"          },
   { value: "AI",    label: "desenvolvimento com apoio de IA"     },
-  { value: "→",     label: "foco em performance e conversão"     },
   { value: "100%",  label: "interfaces responsivas"              },
-  { value: "→",     label: "entrega moderna e eficiente"         },
   { value: "</>",   label: "código limpo e organizado"           },
-  { value: "→",     label: "projetos do zero ao ar em dias"      },
-  { value: "SEO",   label: "otimizado para buscas"               },
-  { value: "→",     label: "mais clientes pelo Google"           },
+  { value: "RA",   label: "otimizado para buscas"               },
   { value: "24h",   label: "suporte pós-entrega"                 },
-  { value: "→",     label: "parceria de longo prazo"             },
 ];
 
 function HeroIndicators() {

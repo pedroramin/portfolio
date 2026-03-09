@@ -171,7 +171,7 @@ const INDICATORS = [
   { value: "AI",    label: "desenvolvimento com apoio de IA"     },
   { value: "100%",  label: "interfaces responsivas"              },
   { value: "</>",   label: "código limpo e organizado"           },
-  { value: "RA",   label: "otimizado para buscas"               },
+  { value: "SEO",   label: "otimizado para buscas"               },
   { value: "24h",   label: "suporte pós-entrega"                 },
 ];
 

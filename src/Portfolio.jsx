@@ -165,114 +165,63 @@ function Navbar({ onContact }) {
   );
 }
 
-// ─── Hero Terminal ────────────────────────────────────────────────────────────
-const TERMINAL_LINES = [
-  { text: "$ ramos-dev create hamburgeria-roots", color: ACCENT },
-  { text: "  ✔ Projeto iniciado com sucesso", color: "#666" },
-  { text: "  ✔ Componentes carregados", color: "#666" },
-  { text: "  ✔ WhatsApp integrado", color: "#666" },
-  { text: "  ✔ SEO configurado", color: "#666" },
-  { text: "$ ramos-dev deploy --production", color: ACCENT },
-  { text: "  ↑ Enviando para o servidor...", color: "#555" },
-  { text: "  ✔ Build concluído em 2.4s", color: "#666" },
-  { text: "  ✔ Site no ar: hamburgeria-roots.com.br", color: ACCENT },
-  { text: "", color: "" },
-  { text: "$ ramos-dev create barbearia-kings", color: ACCENT },
-  { text: "  ✔ Projeto iniciado com sucesso", color: "#666" },
-  { text: "  ✔ Galeria de cortes configurada", color: "#666" },
-  { text: "  ✔ Agendamento via WhatsApp ativo", color: "#666" },
-  { text: "$ ramos-dev deploy --production", color: ACCENT },
-  { text: "  ✔ Build concluído em 1.9s", color: "#666" },
-  { text: "  ✔ Site no ar: barbearia-kings.com.br", color: ACCENT },
-  { text: "", color: "" },
-  { text: "$ ramos-dev create cafeteria-origem", color: ACCENT },
-  { text: "  ✔ Cardápio visual montado", color: "#666" },
-  { text: "  ✔ Localização integrada", color: "#666" },
-  { text: "$ ramos-dev deploy --production", color: ACCENT },
-  { text: "  ✔ Site no ar: cafeteria-origem.com.br", color: ACCENT },
+// ─── Hero Indicators ──────────────────────────────────────────────────────────
+const INDICATORS = [
+  { value: "12+",  label: "projetos desenvolvidos",        accent: true  },
+  { value: "→",    label: "sites rápidos e otimizados",    accent: false },
+  { value: "AI",   label: "desenvolvimento com apoio de IA", accent: true },
+  { value: "→",    label: "foco em performance e conversão", accent: false },
+  { value: "100%", label: "interfaces responsivas",         accent: true  },
+  { value: "→",    label: "entrega moderna e eficiente",    accent: false },
 ];
 
-function HeroTerminal() {
-  const [visibleCount, setVisibleCount] = useState(0);
-  const [cursor, setCursor] = useState(true);
-  const scrollRef = useRef(null);
+function HeroIndicators() {
+  const [visible, setVisible] = useState([]);
+  const [done, setDone]       = useState(false);
 
   useEffect(() => {
-    if (visibleCount >= TERMINAL_LINES.length) return;
-    const delay = TERMINAL_LINES[visibleCount]?.text === "" ? 200
-      : TERMINAL_LINES[visibleCount]?.color === ACCENT ? 600 : 180;
-    const t = setTimeout(() => setVisibleCount(v => v + 1), delay);
+    if (done) return;
+    if (visible.length >= INDICATORS.length) { setDone(true); return; }
+    const t = setTimeout(() => {
+      setVisible(v => [...v, v.length]);
+    }, visible.length === 0 ? 600 : 480);
     return () => clearTimeout(t);
-  }, [visibleCount]);
-
-  // loop infinito
-  useEffect(() => {
-    if (visibleCount < TERMINAL_LINES.length) return;
-    const t = setTimeout(() => setVisibleCount(0), 3000);
-    return () => clearTimeout(t);
-  }, [visibleCount]);
-
-  useEffect(() => {
-    const t = setInterval(() => setCursor(c => !c), 530);
-    return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [visibleCount]);
+  }, [visible, done]);
 
   return (
     <div style={{
-      background: "#080808",
-      border: "1px solid rgba(180,255,120,0.1)",
-      borderRadius: "12px",
-      overflow: "hidden",
-      boxShadow: "0 0 0 1px rgba(255,255,255,0.03), 0 32px 80px rgba(0,0,0,.7), 0 0 60px rgba(180,255,120,0.04)",
-      fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
+      display: "flex", flexDirection: "column", gap: "22px",
+      paddingLeft: "8px",
+      borderLeft: `1px solid rgba(180,255,120,0.1)`,
     }}>
-      {/* Cabeçalho minimalista */}
-      <div style={{
-        padding: "12px 18px",
-        borderBottom: "1px solid rgba(255,255,255,0.04)",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <span style={{
-          fontSize: "11px", color: "rgba(180,255,120,0.4)",
-          letterSpacing: "1.5px", textTransform: "lowercase",
-          fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+      {INDICATORS.map((item, i) => (
+        <div key={i} style={{
+          display: "flex", alignItems: "baseline", gap: "10px",
+          opacity: visible.includes(i) ? 1 : 0,
+          transform: visible.includes(i) ? "translateY(0)" : "translateY(10px)",
+          transition: "opacity 0.6s ease, transform 0.6s ease",
         }}>
-          ramos.dev/terminal
-        </span>
-        <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
-          <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(180,255,120,0.5)", animation: "blink 1.5s ease infinite" }} />
-          <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.15)", letterSpacing: "1px" }}>LIVE</span>
-        </div>
-      </div>
-
-      {/* Conteúdo */}
-      <div ref={scrollRef} style={{
-        padding: "20px 22px 22px",
-        height: "310px",
-        overflowY: "hidden",
-        display: "flex", flexDirection: "column", gap: "2px",
-      }}>
-        {TERMINAL_LINES.slice(0, visibleCount).map((line, i) => (
-          <div key={i} style={{
-            fontSize: "11.5px",
-            color: line.color === ACCENT ? ACCENT : line.color || "transparent",
-            lineHeight: 1.75,
-            letterSpacing: "0.2px",
-            fontWeight: 400,
-            textShadow: line.color === ACCENT ? `0 0 12px ${ACCENT}60` : "none",
+          <span style={{
+            fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+            fontSize: item.accent ? "13px" : "10px",
+            fontWeight: 600,
+            color: item.accent ? ACCENT : "rgba(255,255,255,0.15)",
+            letterSpacing: "0.5px",
+            minWidth: "36px",
+            textShadow: item.accent ? `0 0 14px ${ACCENT}50` : "none",
           }}>
-            {line.text || "\u00a0"}
-          </div>
-        ))}
-        {/* cursor piscando */}
-        <div style={{ fontSize: "11.5px", color: ACCENT, lineHeight: 1.75, textShadow: `0 0 10px ${ACCENT}80` }}>
-          <span style={{ opacity: cursor ? 1 : 0 }}>▋</span>
+            {item.value}
+          </span>
+          <span style={{
+            fontSize: "12px",
+            color: item.accent ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.18)",
+            letterSpacing: "0.3px",
+            fontWeight: 300,
+          }}>
+            {item.label}
+          </span>
         </div>
-      </div>
+      ))}
     </div>
   );
 }
@@ -388,11 +337,11 @@ function Hero({ onContact }) {
           </div>
         </div>
 
-        {/* RIGHT — terminal */}
+        {/* RIGHT — indicators */}
         <div className="fade-in" style={{
-          flex: "0 0 420px", animationDelay: ".4s",
+          flex: "0 0 300px", animationDelay: ".5s",
         }}>
-          <HeroTerminal />
+          <HeroIndicators />
         </div>
 
       </div>

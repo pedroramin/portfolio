@@ -6,7 +6,7 @@ import babeariaVideo from "./videos/babearia.mp4";
 import cafeteriaVideo from "./videos/cafeteria.mp4";
 import academiaVideo from "./videos/academia.mp4";
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap');`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');`;
 
 const CSS = `
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -46,52 +46,42 @@ input:focus,textarea:focus{outline:none;border-color:rgba(180,255,120,0.5) !impo
 `;
 
 // ─── Glowing Effect ───────────────────────────────────────────────────────────
-const GlowingEffect = memo(({
-  blur = 0,
-  inactiveZone = 0.7,
-  proximity = 0,
-  spread = 20,
-  glow = false,
-  movementDuration = 2,
-  borderWidth = 1,
-  disabled = false,
-}) => {
+const GlowingEffect = memo(({ blur=0, inactiveZone=0.7, proximity=0, spread=20, borderWidth=1, disabled=false }) => {
   const containerRef = useRef(null);
-  const lastPosition = useRef({ x: 0, y: 0 });
+  const lastPosition = useRef({ x:0, y:0 });
   const animationFrameRef = useRef(0);
 
   const handleMove = useCallback((e) => {
     if (!containerRef.current) return;
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     animationFrameRef.current = requestAnimationFrame(() => {
-      const element = containerRef.current;
-      if (!element) return;
-      const { left, top, width, height } = element.getBoundingClientRect();
+      const el = containerRef.current;
+      if (!el) return;
+      const { left, top, width, height } = el.getBoundingClientRect();
       const mouseX = e?.x ?? lastPosition.current.x;
       const mouseY = e?.y ?? lastPosition.current.y;
       if (e) lastPosition.current = { x: mouseX, y: mouseY };
       const center = [left + width * 0.5, top + height * 0.5];
-      const distanceFromCenter = Math.hypot(mouseX - center[0], mouseY - center[1]);
-      const inactiveRadius = 0.5 * Math.min(width, height) * inactiveZone;
-      if (distanceFromCenter < inactiveRadius) { element.style.setProperty("--active", "0"); return; }
-      const isActive = mouseX > left - proximity && mouseX < left + width + proximity && mouseY > top - proximity && mouseY < top + height + proximity;
-      element.style.setProperty("--active", isActive ? "1" : "0");
+      const dist = Math.hypot(mouseX - center[0], mouseY - center[1]);
+      if (dist < 0.5 * Math.min(width, height) * inactiveZone) { el.style.setProperty("--active","0"); return; }
+      const isActive = mouseX > left-proximity && mouseX < left+width+proximity && mouseY > top-proximity && mouseY < top+height+proximity;
+      el.style.setProperty("--active", isActive ? "1" : "0");
       if (!isActive) return;
-      const targetAngle = (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) / Math.PI + 90;
-      element.style.setProperty("--start", String(targetAngle));
+      const angle = (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) / Math.PI + 90;
+      el.style.setProperty("--start", String(angle));
     });
-  }, [inactiveZone, proximity, movementDuration]);
+  }, [inactiveZone, proximity]);
 
   useEffect(() => {
     if (disabled) return;
-    const handleScroll = () => handleMove();
-    const handlePointerMove = (e) => handleMove(e);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    document.body.addEventListener("pointermove", handlePointerMove, { passive: true });
+    const onScroll = () => handleMove();
+    const onMove = (e) => handleMove(e);
+    window.addEventListener("scroll", onScroll, { passive:true });
+    document.body.addEventListener("pointermove", onMove, { passive:true });
     return () => {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      window.removeEventListener("scroll", handleScroll);
-      document.body.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("scroll", onScroll);
+      document.body.removeEventListener("pointermove", onMove);
     };
   }, [handleMove, disabled]);
 
@@ -100,63 +90,17 @@ const GlowingEffect = memo(({
     radial-gradient(circle at 40% 40%, #d79f1e 5%, #d79f1e00 15%),
     radial-gradient(circle at 60% 60%, #5a922c 10%, #5a922c00 20%),
     radial-gradient(circle at 40% 60%, #4c7894 10%, #4c789400 20%),
-    repeating-conic-gradient(
-      from 236.84deg at 50% 50%,
-      #dd7bbb 0%,
-      #d79f1e calc(25% / 5),
-      #5a922c calc(50% / 5),
-      #4c7894 calc(75% / 5),
-      #dd7bbb calc(100% / 5)
-    )`;
+    repeating-conic-gradient(from 236.84deg at 50% 50%,
+      #dd7bbb 0%, #d79f1e calc(25%/5), #5a922c calc(50%/5), #4c7894 calc(75%/5), #dd7bbb calc(100%/5))`;
 
   return (
     <div ref={containerRef} style={{
-      "--blur": `${blur}px`,
-      "--spread": spread,
-      "--start": "0",
-      "--active": "0",
-      "--bw": `${borderWidth}px`,
-      "--gradient": gradient,
-      position: "absolute", inset: 0,
-      borderRadius: "inherit",
-      pointerEvents: "none",
-      display: disabled ? "none" : "block",
+      "--spread": spread, "--start":"0", "--active":"0",
+      "--bw": `${borderWidth}px`, "--gradient": gradient,
+      position:"absolute", inset:0, borderRadius:"inherit", pointerEvents:"none",
     }}>
-      <style>{`
-        .glow-inner::after {
-          content: "";
-          position: absolute;
-          border-radius: inherit;
-          inset: calc(-1 * var(--bw));
-          border: var(--bw) solid transparent;
-          background: var(--gradient);
-          background-attachment: fixed;
-          opacity: var(--active);
-          transition: opacity 300ms;
-          -webkit-mask-clip: padding-box, border-box;
-          -webkit-mask-composite: intersect;
-          mask-clip: padding-box, border-box;
-          mask-composite: intersect;
-          -webkit-mask-image: linear-gradient(#0000, #0000),
-            conic-gradient(
-              from calc((var(--start) - var(--spread)) * 1deg),
-              #00000000 0deg,
-              #fff,
-              #00000000 calc(var(--spread) * 2deg)
-            );
-          mask-image: linear-gradient(#0000, #0000),
-            conic-gradient(
-              from calc((var(--start) - var(--spread)) * 1deg),
-              #00000000 0deg,
-              #fff,
-              #00000000 calc(var(--spread) * 2deg)
-            );
-        }
-      `}</style>
-      <div className="glow-inner" style={{
-        position: "absolute", inset: 0,
-        borderRadius: "inherit",
-      }} />
+      <style>{`.glow-inner::after{content:"";position:absolute;border-radius:inherit;inset:calc(-1*var(--bw));border:var(--bw) solid transparent;background:var(--gradient);background-attachment:fixed;opacity:var(--active);transition:opacity 300ms;-webkit-mask-clip:padding-box,border-box;-webkit-mask-composite:intersect;mask-clip:padding-box,border-box;mask-composite:intersect;-webkit-mask-image:linear-gradient(#0000,#0000),conic-gradient(from calc((var(--start)-var(--spread))*1deg),#00000000 0deg,#fff,#00000000 calc(var(--spread)*2deg));mask-image:linear-gradient(#0000,#0000),conic-gradient(from calc((var(--start)-var(--spread))*1deg),#00000000 0deg,#fff,#00000000 calc(var(--spread)*2deg));}`}</style>
+      <div className="glow-inner" style={{ position:"absolute", inset:0, borderRadius:"inherit" }} />
     </div>
   );
 });
@@ -193,11 +137,9 @@ const CAT_ICONS = {
   ),
   personal: (c) => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="6" cy="6" r="2.5"/>
-      <circle cx="6" cy="18" r="2.5"/>
-      <line x1="20" y1="4" x2="8.12" y2="15.88"/>
-      <line x1="14.47" y1="14.48" x2="20" y2="20"/>
-      <line x1="8.12" y1="8.12" x2="12" y2="12"/>
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <circle cx="12" cy="9" r="2.5"/>
+      <path d="M7 19c0-2.8 2.2-5 5-5s5 2.2 5 5"/>
     </svg>
   ),
   fitness: (c) => (
@@ -217,7 +159,7 @@ const TEMPLATES = [
   { id: "confeitaria", label: "Confeitaria",  color: "#D4A017", desc: "Vitrine de bolos, doces e encomendas pelo WhatsApp" },
   { id: "restaurant", label: "Restaurante",  color: "#C9184A", desc: "Cardápio em destaque com reserva por WhatsApp" },
   { id: "cafe",       label: "Cafeteria",    color: "#8B5E3C", desc: "Atmosfera aconchegante com cardápio visual" },
-  { id: "personal",    label: "Barbearia",    color: "#9B5DE5", desc: "Agendamentos, serviços e contato direto pelo WhatsApp" },
+  { id: "personal",    label: "Pág. Pessoal", color: "#9B5DE5", desc: "Portfólio, bio e links para profissionais autônomos" },
   { id: "fitness",    label: "Academia",     color: "#0077B6", desc: "Planos, horários e captação de alunos" },
 ];
 
@@ -282,159 +224,6 @@ function Navbar({ onContact }) {
   );
 }
 
-// ─── Hero Indicators ──────────────────────────────────────────────────────────
-const INDICATORS = [
-  { value: "12+",   label: "projetos desenvolvidos"              },
-  { value: "→",     label: "sites rápidos e otimizados"          },
-  { value: "AI",    label: "desenvolvimento com apoio de IA"     },
-  { value: "→",     label: "foco em performance e conversão"     },
-  { value: "100%",  label: "interfaces responsivas"              },
-  { value: "→",     label: "entrega moderna e eficiente"         },
-  { value: "</>",   label: "código limpo e organizado"           },
-  { value: "→",     label: "projetos do zero ao ar em dias"      },
-  { value: "SEO",   label: "otimizado para buscas"               },
-  { value: "→",     label: "mais clientes pelo Google"           },
-  { value: "24h",   label: "suporte pós-entrega"                 },
-  { value: "→",     label: "parceria de longo prazo"             },
-];
-
-function HeroIndicators() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [phase, setPhase] = useState("enter"); // enter | visible | exit
-
-  useEffect(() => {
-    const durations = { enter: 600, visible: 2200, exit: 500 };
-    const t = setTimeout(() => {
-      if (phase === "enter")   setPhase("visible");
-      if (phase === "visible") setPhase("exit");
-      if (phase === "exit") {
-        setActiveIndex(i => (i + 1) % INDICATORS.length);
-        setPhase("enter");
-      }
-    }, durations[phase]);
-    return () => clearTimeout(t);
-  }, [phase, activeIndex]);
-
-  const item = INDICATORS[activeIndex];
-  const isAccent = item.value !== "→";
-
-  const opacity = phase === "enter" ? 1 : phase === "exit" ? 0 : 1;
-  const translateY = phase === "enter" ? 0 : phase === "exit" ? -8 : 0;
-  const initialY = phase === "enter" ? 8 : 0;
-
-  return (
-    <div style={{
-      paddingLeft: "20px",
-      borderLeft: `1px solid rgba(180,255,120,0.1)`,
-      height: "120px",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      gap: "10px",
-    }}>
-      {/* Indicador principal animado */}
-      <div style={{
-        opacity,
-        transform: `translateY(${phase === "enter" ? initialY : translateY}px)`,
-        transition: `opacity ${phase === "enter" ? "0.6s" : "0.5s"} ease, transform ${phase === "enter" ? "0.6s" : "0.5s"} ease`,
-      }}>
-        <div style={{
-          fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-          fontSize: isAccent ? "28px" : "14px",
-          fontWeight: 600,
-          color: isAccent ? ACCENT : "rgba(255,255,255,0.2)",
-          letterSpacing: isAccent ? "-0.5px" : "2px",
-          lineHeight: 1,
-          marginBottom: "8px",
-          textShadow: isAccent ? `0 0 24px ${ACCENT}50` : "none",
-        }}>
-          {item.value}
-        </div>
-        <div style={{
-          fontSize: "12px",
-          color: isAccent ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.18)",
-          letterSpacing: "0.3px",
-          fontWeight: 300,
-          lineHeight: 1.5,
-        }}>
-          {item.label}
-        </div>
-      </div>
-
-      {/* Dots de progresso */}
-      <div style={{ display: "flex", gap: "5px", marginTop: "6px" }}>
-        {INDICATORS.map((_, i) => (
-          <div key={i} style={{
-            width: i === activeIndex ? "16px" : "4px",
-            height: "3px",
-            borderRadius: "2px",
-            background: i === activeIndex ? ACCENT : "rgba(255,255,255,0.08)",
-            transition: "all 0.4s ease",
-            boxShadow: i === activeIndex ? `0 0 6px ${ACCENT}60` : "none",
-          }} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Floating Paths Background ────────────────────────────────────────────────
-function HeroCanvas() {
-  const makePaths = (position) =>
-    Array.from({ length: 36 }, (_, i) => ({
-      id: `${position > 0 ? "p" : "n"}-${i}`,
-      d: [
-        `M${-380 - i * 5 * position} ${-189 + i * 6}`,
-        `C${-380 - i * 5 * position} ${-189 + i * 6}`,
-        `${-312 - i * 5 * position} ${216 - i * 6}`,
-        `${152 - i * 5 * position} ${343 - i * 6}`,
-        `C${616 - i * 5 * position} ${470 - i * 6}`,
-        `${684 - i * 5 * position} ${875 - i * 6}`,
-        `${684 - i * 5 * position} ${875 - i * 6}`,
-      ].join(" "),
-      width: 0.5 + i * 0.03,
-      opacity: 0.1 + i * 0.03,
-      duration: 20 + (i % 10) * 3,
-      delay: i * 0.6,
-    }));
-
-  const allPaths = [...makePaths(1), ...makePaths(-1)];
-
-  return (
-    <div style={{
-      position: "fixed", inset: 0,
-      pointerEvents: "none", overflow: "hidden",
-      zIndex: 0,
-    }}>
-      <svg
-        viewBox="0 0 696 316"
-        preserveAspectRatio="xMidYMid slice"
-        fill="none"
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-      >
-        {allPaths.map((p) => (
-          <path
-            key={p.id}
-            d={p.d}
-            stroke="rgba(255,255,255,1)"
-            strokeWidth={p.width}
-            fill="none"
-          >
-            <animate
-              attributeName="stroke-opacity"
-              values={`${p.opacity * 0.4};${p.opacity};${p.opacity * 0.4}`}
-              dur={`${p.duration}s`}
-              begin={`${-p.delay}s`}
-              repeatCount="indefinite"
-              calcMode="linear"
-            />
-          </path>
-        ))}
-      </svg>
-    </div>
-  );
-}
-
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero({ onContact }) {
   const [tick, setTick] = useState(true);
@@ -443,7 +232,7 @@ function Hero({ onContact }) {
     return () => clearInterval(t);
   }, []);
 
-  const words = ["hamburguerias", "barbearias", "restaurantes", "cafeterias", "confeitarias", "academias"];
+  const words = ["hamburguerias", "barbearias", "restaurantes", "cafeterias", "salões", "academias"];
   const [wi, setWi] = useState(0);
   const [fade, setFade] = useState(true);
   useEffect(() => {
@@ -458,7 +247,7 @@ function Hero({ onContact }) {
     <section style={{
       minHeight: "100vh", display: "flex", flexDirection: "column",
       justifyContent: "center", padding: "80px 40px 60px",
-      position: "relative",
+      position: "relative", overflow: "hidden",
       maxWidth: "1200px", margin: "0 auto",
     }}>
       {/* Big background text */}
@@ -469,81 +258,76 @@ function Hero({ onContact }) {
         userSelect: "none", pointerEvents: "none", whiteSpace: "nowrap", lineHeight: 1,
       }}>PEDRO RAMOS</div>
 
-      {/* Two-column layout */}
-      <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "40px" }}>
+      {/* Floating dot */}
+      <div style={{
+        position: "absolute", top: "20%", right: "8%",
+        width: "180px", height: "180px", borderRadius: "50%",
+        background: `radial-gradient(circle, ${ACCENT}20 0%, transparent 70%)`,
+        animation: "float 4s ease-in-out infinite",
+      }} />
 
-        {/* LEFT — text */}
-        <div style={{ flex: "1 1 0", minWidth: 0 }}>
-          {/* Tag */}
-          <div className="fade-up" style={{
-            display: "inline-flex", alignItems: "center", gap: "8px",
-            border: "1px solid rgba(255,255,255,0.1)", borderRadius: "100px",
-            padding: "6px 14px", marginBottom: "32px",
-            fontSize: "12px", color: "#666", letterSpacing: ".5px"
-          }}>
-            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: ACCENT, animation: "blink 1.5s ease infinite" }} />
-            Disponível para novos projetos
-          </div>
-
-          {/* Name */}
-          <h1 className="fade-up" style={{
-            fontFamily: "'Bebas Neue'", fontSize: "clamp(64px, 9vw, 120px)",
-            lineHeight: .95, letterSpacing: "-1px", marginBottom: "24px",
-            animationDelay: ".1s"
-          }}>
-            Ramos<br />
-            <span style={{ color: ACCENT }}>Dev</span>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="fade-up" style={{
-            fontSize: "clamp(15px, 1.8vw, 19px)", color: "#888",
-            maxWidth: "460px", lineHeight: 1.6, marginBottom: "16px",
-            animationDelay: ".2s", fontWeight: 300,
-          }}>
-            Desenvolvo sites profissionais para{" "}
-            <span style={{
-              color: ACCENT, fontFamily: "'Instrument Serif'", fontStyle: "italic",
-              fontSize: "110%", transition: "opacity .3s",
-              opacity: fade ? 1 : 0,
-            }}>{words[wi]}</span>
-            <span style={{ opacity: tick ? 1 : 0, color: ACCENT }}>_</span>
-          </p>
-
-          <p className="fade-up" style={{ fontSize: "14px", color: "#444", maxWidth: "400px", lineHeight: 1.7, marginBottom: "44px", animationDelay: ".25s" }}>
-            Sites rápidos, bonitos e que realmente trazem clientes pro seu negócio — sem complicação.
-          </p>
-
-          <div className="fade-up" style={{ display: "flex", gap: "12px", flexWrap: "wrap", animationDelay: ".35s" }}>
-            <button onClick={onContact} style={{
-              background: ACCENT, border: "none", borderRadius: "10px",
-              padding: "14px 28px", color: "#0b0b0b", fontFamily: "'DM Sans'",
-              fontSize: "15px", fontWeight: 600, cursor: "pointer", transition: "all .25s",
-            }}
-              onMouseEnter={e => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = `0 10px 32px ${ACCENT}50`; }}
-              onMouseLeave={e => { e.target.style.transform = ""; e.target.style.boxShadow = ""; }}>
-              Quero um site assim →
-            </button>
-            <a href="#projetos" style={{
-              background: "transparent", border: "1px solid rgba(255,255,255,0.12)",
-              borderRadius: "10px", padding: "14px 24px", color: "#888",
-              fontFamily: "'DM Sans'", fontSize: "15px", cursor: "pointer",
-              transition: "all .2s", textDecoration: "none", display: "inline-block"
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; e.currentTarget.style.color = "#e8e4dc"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#888"; }}>
-              Ver projetos
-            </a>
-          </div>
-        </div>
-
-        {/* RIGHT — indicators */}
-        <div className="fade-in" style={{
-          flex: "0 0 300px", animationDelay: ".5s",
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {/* Tag */}
+        <div className="fade-up" style={{
+          display: "inline-flex", alignItems: "center", gap: "8px",
+          border: "1px solid rgba(255,255,255,0.1)", borderRadius: "100px",
+          padding: "6px 14px", marginBottom: "32px",
+          fontSize: "12px", color: "#666", letterSpacing: ".5px"
         }}>
-          <HeroIndicators />
+          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: ACCENT, animation: "blink 1.5s ease infinite" }} />
+          Disponível para novos projetos
         </div>
 
+        {/* Name */}
+        <h1 className="fade-up" style={{
+          fontFamily: "'Bebas Neue'", fontSize: "clamp(64px, 10vw, 130px)",
+          lineHeight: .95, letterSpacing: "-1px", marginBottom: "24px",
+          animationDelay: ".1s"
+        }}>
+          Ramos<br />
+          <span style={{ color: ACCENT }}>Dev</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p className="fade-up" style={{
+          fontSize: "clamp(16px, 2vw, 20px)", color: "#888",
+          maxWidth: "520px", lineHeight: 1.6, marginBottom: "16px",
+          animationDelay: ".2s", fontWeight: 300,
+        }}>
+          Desenvolvo sites profissionais para{" "}
+          <span style={{
+            color: ACCENT, fontFamily: "'Instrument Serif'", fontStyle: "italic",
+            fontSize: "110%", transition: "opacity .3s",
+            opacity: fade ? 1 : 0,
+          }}>{words[wi]}</span>
+          <span style={{ opacity: tick ? 1 : 0, color: ACCENT }}>_</span>
+        </p>
+
+        <p className="fade-up" style={{ fontSize: "14px", color: "#444", maxWidth: "420px", lineHeight: 1.7, marginBottom: "44px", animationDelay: ".25s" }}>
+          Sites rápidos, bonitos e que realmente trazem clientes pro seu negócio — sem complicação.
+        </p>
+
+        <div className="fade-up" style={{ display: "flex", gap: "12px", animationDelay: ".35s" }}>
+          <button onClick={onContact} style={{
+            background: ACCENT, border: "none", borderRadius: "10px",
+            padding: "14px 28px", color: "#0b0b0b", fontFamily: "'DM Sans'",
+            fontSize: "15px", fontWeight: 600, cursor: "pointer", transition: "all .25s",
+          }}
+            onMouseEnter={e => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = `0 10px 32px ${ACCENT}50`; }}
+            onMouseLeave={e => { e.target.style.transform = ""; e.target.style.boxShadow = ""; }}>
+            Quero um site assim →
+          </button>
+          <a href="#projetos" style={{
+            background: "transparent", border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: "10px", padding: "14px 24px", color: "#888",
+            fontFamily: "'DM Sans'", fontSize: "15px", cursor: "pointer",
+            transition: "all .2s", textDecoration: "none", display: "inline-block"
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; e.currentTarget.style.color = "#e8e4dc"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#888"; }}>
+            Ver projetos
+          </a>
+        </div>
       </div>
 
       {/* Scroll hint */}
@@ -759,84 +543,51 @@ function Trabalhos({ onContact }) {
         {/* ── Grade de categorias ── */}
         {!selectedCat && (
           <div className="fade-in">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "16px" }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(300px, 1fr))", gap:"16px" }}>
               {TEMPLATES.map((tpl) => {
                 const count = (VIDEOS_BY_CAT[tpl.id] || []).length;
                 const hasProjects = count > 0;
                 return (
-                  <button key={tpl.id} onClick={() => setSelectedCat(tpl)}
-                    style={{
-                      background: "transparent", border: "none",
-                      padding: "1px", cursor: "pointer", textAlign: "left",
-                      position: "relative",
-                      color: "inherit", fontFamily: "'DM Sans'",
-                      borderRadius: "20px",
-                    }}>
-
-                    {/* Glowing border effect */}
-                    <GlowingEffect
-                      spread={40}
-                      glow={true}
-                      disabled={false}
-                      proximity={64}
-                      inactiveZone={0.01}
-                      borderWidth={2}
-                    />
-
-                    {/* Outer border container */}
-                    <div style={{
-                      borderRadius: "20px",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      padding: "2px",
-                      background: "transparent",
-                    }}>
+                  <button key={tpl.id} onClick={() => setSelectedCat(tpl)} style={{
+                    background:"transparent", border:"none", padding:"1px",
+                    cursor:"pointer", textAlign:"left", position:"relative",
+                    color:"inherit", fontFamily:"'DM Sans'", borderRadius:"20px",
+                  }}>
+                    {/* Glow border */}
+                    <GlowingEffect spread={40} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={2} />
+                    {/* Outer ring */}
+                    <div style={{ borderRadius:"20px", border:"1px solid rgba(255,255,255,0.08)", padding:"2px" }}>
                       {/* Inner card */}
                       <div style={{
-                        background: "#0f0f0f",
-                        borderRadius: "18px",
-                        border: "1px solid rgba(255,255,255,0.05)",
-                        padding: "24px",
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        minHeight: "200px",
-                        gap: "24px",
+                        background:"#0f0f0f", borderRadius:"18px",
+                        border:"1px solid rgba(255,255,255,0.05)",
+                        padding:"24px", display:"flex", flexDirection:"column",
+                        justifyContent:"space-between", minHeight:"200px", gap:"24px",
                       }}>
                         {/* Icon */}
                         <div style={{
-                          width: "36px", height: "36px", borderRadius: "8px",
-                          background: "rgba(180,255,120,0.08)",
-                          border: "1px solid rgba(180,255,120,0.2)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
+                          width:"36px", height:"36px", borderRadius:"8px",
+                          background:"rgba(180,255,120,0.08)", border:"1px solid rgba(180,255,120,0.2)",
+                          display:"flex", alignItems:"center", justifyContent:"center",
                         }}>
                           {CAT_ICONS[tpl.id]?.(ACCENT)}
                         </div>
-
                         {/* Text */}
                         <div>
-                          <div style={{
-                            display: "flex", justifyContent: "space-between", alignItems: "center",
-                            marginBottom: "10px",
-                          }}>
-                            <h3 style={{
-                              fontSize: "18px", fontWeight: 600,
-                              color: ACCENT, letterSpacing: "-0.3px", lineHeight: 1.3,
-                            }}>{tpl.label}</h3>
+                          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"10px" }}>
+                            <h3 style={{ fontSize:"18px", fontWeight:600, color:ACCENT, letterSpacing:"-0.3px", lineHeight:1.3 }}>
+                              {tpl.label}
+                            </h3>
                             {hasProjects ? (
-                              <div style={{
-                                display: "flex", alignItems: "center", gap: "5px",
-                                background: "rgba(255,255,255,0.05)", borderRadius: "20px",
-                                padding: "3px 10px", border: "1px solid rgba(255,255,255,0.1)",
-                                flexShrink: 0,
-                              }}>
-                                <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(255,255,255,0.5)", animation: "blink 1.5s ease infinite" }} />
-                                <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", letterSpacing: ".5px" }}>EXEMPLO</span>
+                              <div style={{ display:"flex", alignItems:"center", gap:"5px", background:"rgba(255,255,255,0.05)", borderRadius:"20px", padding:"3px 10px", border:"1px solid rgba(255,255,255,0.1)", flexShrink:0 }}>
+                                <div style={{ width:"5px", height:"5px", borderRadius:"50%", background:"rgba(255,255,255,0.5)", animation:"blink 1.5s ease infinite" }} />
+                                <span style={{ fontSize:"10px", color:"rgba(255,255,255,0.4)", letterSpacing:".5px" }}>EXEMPLO</span>
                               </div>
                             ) : (
-                              <span style={{ fontSize: "10px", color: "#2a2a2a", letterSpacing: "1px", padding: "3px 10px", border: "1px solid #1a1a1a", borderRadius: "20px", flexShrink: 0 }}>EM BREVE</span>
+                              <span style={{ fontSize:"10px", color:"#2a2a2a", letterSpacing:"1px", padding:"3px 10px", border:"1px solid #1a1a1a", borderRadius:"20px", flexShrink:0 }}>EM BREVE</span>
                             )}
                           </div>
-                          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.35)", lineHeight: 1.6, margin: 0 }}>{tpl.desc}</p>
+                          <p style={{ fontSize:"14px", color:"rgba(255,255,255,0.35)", lineHeight:1.6, margin:0 }}>{tpl.desc}</p>
                         </div>
                       </div>
                     </div>
@@ -1237,17 +988,8 @@ export default function App() {
     <>
       <style>{FONTS + CSS}</style>
       <Grain />
-      {/* Background paths — wrapper 100vh sem maxWidth, cobre tela toda */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, right: 0,
-        height: "100vh", overflow: "hidden", pointerEvents: "none", zIndex: 0,
-      }}>
-        <HeroCanvas />
-      </div>
-      <div style={{ position: "relative", zIndex: 1 }}>
-        <Navbar onContact={scrollToForm} />
-        <Hero onContact={scrollToForm} />
-      </div>
+      <Navbar onContact={scrollToForm} />
+      <Hero onContact={scrollToForm} />
       <Marquee />
       <Trabalhos onContact={scrollToForm} />
       <Contact formRef={formRef} />

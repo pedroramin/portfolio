@@ -21,8 +21,6 @@ body{font-family:'DM Sans',sans-serif;background:#0b0b0b;color:#e8e4dc;overflow-
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
 @keyframes spin{to{transform:rotate(360deg);}}
-@keyframes pathDraw{0%{stroke-dashoffset:var(--dash-len);}50%{stroke-dashoffset:0;}100%{stroke-dashoffset:calc(var(--dash-len)*-1);}}
-@keyframes pathFade{0%,100%{opacity:.3;}50%{opacity:.7;}}
 @keyframes grain{
   0%,100%{transform:translate(0,0);}
   10%{transform:translate(-2%,-3%);}
@@ -380,41 +378,119 @@ function HeroIndicators() {
   );
 }
 
-// ─── Floating Paths Background ────────────────────────────────────────────────
-function FloatingPaths({ position }) {
-  const paths = Array.from({ length: 36 }, (_, i) => ({
-    id: i,
-    d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${380 - i * 5 * position} -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${152 - i * 5 * position} ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${684 - i * 5 * position} ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
-    width: 0.5 + i * 0.03,
-    opacity: 0.08 + i * 0.018,
-    duration: 18 + (i % 7) * 3,
-    delay: -(i * 1.1),
-  }));
+// ─── Floating Paths Background (Canvas) ──────────────────────────────────────
+function HeroCanvas() {
+  const canvasRef = useRef(null);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    // Each path: bezier curve with a "dash" that travels along it
+    const NUM = 28;
+    const lines = Array.from({ length: NUM }, (_, i) => {
+      const side = i % 2 === 0 ? 1 : -1;
+      const t = i / NUM;
+      return {
+        // Control points parametrized like the original component
+        x0: -380 + i * 5 * side,
+        y0: -189 + i * 6,
+        cx1: -312 + i * 5 * side,
+        cy1: 216 - i * 6,
+        cx2: 152 + i * 5 * side,
+        cy2: 343 - i * 6,
+        x1: 684 - i * 5 * side,
+        y1: 875 - i * 6,
+        width: 0.4 + i * 0.025,
+        baseOpacity: 0.04 + t * 0.12,
+        speed: 0.00018 + t * 0.00006,
+        offset: i * 0.07,          // stagger start
+        dashLen: 0.18 + t * 0.1,   // fraction of path shown
+      };
+    });
+
+    let W, H, scaleX, scaleY;
+    const resize = () => {
+      W = canvas.offsetWidth;
+      H = canvas.offsetHeight;
+      canvas.width = W;
+      canvas.height = H;
+      // SVG viewBox was 696 x 316 → map to canvas
+      scaleX = W / 696;
+      scaleY = H / 316;
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    // Sample a cubic bezier at t ∈ [0,1]
+    const bezier = (t, p0, p1, p2, p3) => {
+      const u = 1 - t;
+      return u*u*u*p0 + 3*u*u*t*p1 + 3*u*t*t*p2 + t*t*t*p3;
+    };
+
+    let now = performance.now();
+    const draw = (ts) => {
+      const dt = ts - now; now = ts;
+      ctx.clearRect(0, 0, W, H);
+
+      lines.forEach(l => {
+        l.offset = (l.offset + l.speed * dt) % 1;
+        const start = l.offset;
+        const end = (start + l.dashLen) % 1;
+
+        // Build path as a series of small segments, only within [start, end]
+        const STEPS = 60;
+        ctx.beginPath();
+        let drawing = false;
+        for (let s = 0; s <= STEPS; s++) {
+          const frac = s / STEPS;
+          // Check if this fraction is "inside" the dash window
+          const inRange = end > start
+            ? frac >= start && frac <= end
+            : frac >= start || frac <= end;
+
+          const px = bezier(frac, l.x0, l.cx1, l.cx2, l.x1) * scaleX;
+          const py = bezier(frac, l.y0, l.cy1, l.cy2, l.y1) * scaleY;
+
+          if (inRange) {
+            if (!drawing) { ctx.moveTo(px, py); drawing = true; }
+            else ctx.lineTo(px, py);
+          } else {
+            drawing = false;
+          }
+        }
+
+        // Opacity pulse: brightest at centre of dash
+        const centerFrac = (start + l.dashLen / 2) % 1;
+        const pulse = 0.5 + 0.5 * Math.sin(centerFrac * Math.PI * 2);
+        ctx.strokeStyle = `rgba(180,255,120,${l.baseOpacity * (0.6 + pulse * 0.4)})`;
+        ctx.lineWidth = l.width;
+        ctx.stroke();
+      });
+
+      rafRef.current = requestAnimationFrame(draw);
+    };
+
+    rafRef.current = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      ro.disconnect();
+    };
+  }, []);
 
   return (
-    <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-      <svg
-        style={{ width: "100%", height: "100%" }}
-        viewBox="0 0 696 316"
-        fill="none"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        {paths.map((path) => (
-          <path
-            key={path.id}
-            d={path.d}
-            stroke={ACCENT}
-            strokeWidth={path.width}
-            strokeOpacity={path.opacity}
-            strokeDasharray="600 1200"
-            strokeDashoffset="0"
-            style={{
-              animation: `pathDraw ${path.duration}s linear ${path.delay}s infinite, pathFade ${path.duration}s ease-in-out ${path.delay}s infinite`,
-            }}
-          />
-        ))}
-      </svg>
-    </div>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "absolute", inset: 0,
+        width: "100%", height: "100%",
+        pointerEvents: "none",
+        opacity: 0.85,
+      }}
+    />
   );
 }
 
@@ -454,8 +530,7 @@ function Hero({ onContact }) {
 
       {/* Floating paths background */}
       <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-        <FloatingPaths position={1} />
-        <FloatingPaths position={-1} />
+        <HeroCanvas />
       </div>
 
       {/* Radial fade para escurecer bordas */}

@@ -85,21 +85,56 @@ const GlowingEffect = memo(({ blur=0, inactiveZone=0.7, proximity=0, spread=20, 
     };
   }, [handleMove, disabled]);
 
-  const gradient = `
-    radial-gradient(circle, #dd7bbb 10%, #dd7bbb00 20%),
-    radial-gradient(circle at 40% 40%, #d79f1e 5%, #d79f1e00 15%),
-    radial-gradient(circle at 60% 60%, #5a922c 10%, #5a922c00 20%),
-    radial-gradient(circle at 40% 60%, #4c7894 10%, #4c789400 20%),
-    repeating-conic-gradient(from 236.84deg at 50% 50%,
-      #dd7bbb 0%, #d79f1e calc(25%/5), #5a922c calc(50%/5), #4c7894 calc(75%/5), #dd7bbb calc(100%/5))`;
-
   return (
     <div ref={containerRef} style={{
       "--spread": spread, "--start":"0", "--active":"0",
-      "--bw": `${borderWidth}px`, "--gradient": gradient,
+      "--bw": `${borderWidth}px`,
       position:"absolute", inset:0, borderRadius:"inherit", pointerEvents:"none",
     }}>
-      <style>{`.glow-inner::after{content:"";position:absolute;border-radius:inherit;inset:calc(-1*var(--bw));border:var(--bw) solid transparent;background:var(--gradient);background-attachment:fixed;opacity:var(--active);transition:opacity 300ms;-webkit-mask-clip:padding-box,border-box;-webkit-mask-composite:intersect;mask-clip:padding-box,border-box;mask-composite:intersect;-webkit-mask-image:linear-gradient(#0000,#0000),conic-gradient(from calc((var(--start)-var(--spread))*1deg),#00000000 0deg,#fff,#00000000 calc(var(--spread)*2deg));mask-image:linear-gradient(#0000,#0000),conic-gradient(from calc((var(--start)-var(--spread))*1deg),#00000000 0deg,#fff,#00000000 calc(var(--spread)*2deg));}`}</style>
+      <style>{`
+        .glow-inner::after {
+          content: "";
+          position: absolute;
+          border-radius: inherit;
+          inset: calc(-1 * var(--bw));
+          border: var(--bw) solid transparent;
+          background:
+            radial-gradient(circle, #dd7bbb 10%, transparent 20%),
+            radial-gradient(circle at 40% 40%, #d79f1e 5%, transparent 15%),
+            radial-gradient(circle at 60% 60%, #5a922c 10%, transparent 20%),
+            radial-gradient(circle at 40% 60%, #4c7894 10%, transparent 20%),
+            repeating-conic-gradient(from 236.84deg at 50% 50%,
+              #dd7bbb 0%,
+              #d79f1e calc(25% / 5),
+              #5a922c calc(50% / 5),
+              #4c7894 calc(75% / 5),
+              #dd7bbb calc(100% / 5)
+            );
+          background-origin: border-box;
+          opacity: var(--active);
+          transition: opacity 300ms;
+          -webkit-mask-clip: padding-box, border-box;
+          -webkit-mask-composite: intersect;
+          mask-clip: padding-box, border-box;
+          mask-composite: intersect;
+          -webkit-mask-image:
+            linear-gradient(#000, #000),
+            conic-gradient(
+              from calc((var(--start) - var(--spread)) * 1deg),
+              transparent 0deg,
+              white,
+              transparent calc(var(--spread) * 2deg)
+            );
+          mask-image:
+            linear-gradient(#000, #000),
+            conic-gradient(
+              from calc((var(--start) - var(--spread)) * 1deg),
+              transparent 0deg,
+              white,
+              transparent calc(var(--spread) * 2deg)
+            );
+        }
+      `}</style>
       <div className="glow-inner" style={{ position:"absolute", inset:0, borderRadius:"inherit" }} />
     </div>
   );

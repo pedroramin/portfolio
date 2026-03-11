@@ -55,7 +55,6 @@ const GlowingEffect = memo(({
   movementDuration = 2,
   borderWidth = 1,
   disabled = false,
-  color = "#b4ff78",
 }) => {
   const containerRef = useRef(null);
   const lastPosition = useRef({ x: 0, y: 0 });
@@ -82,7 +81,6 @@ const GlowingEffect = memo(({
       let targetAngle = (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) / Math.PI + 90;
       const angleDiff = ((targetAngle - currentAngle + 180) % 360) - 180;
       const newAngle = currentAngle + angleDiff;
-      // simple animation without motion library
       const start = performance.now();
       const duration = movementDuration * 1000;
       const animAngle = (timestamp) => {
@@ -109,16 +107,18 @@ const GlowingEffect = memo(({
     };
   }, [handleMove, disabled]);
 
-  const gradient = `radial-gradient(circle, ${color}cc 10%, ${color}00 20%),
-    radial-gradient(circle at 40% 40%, ${color}88 5%, ${color}00 15%),
-    radial-gradient(circle at 60% 60%, ${color}aa 10%, ${color}00 20%),
+  const gradient = `
+    radial-gradient(circle, #dd7bbb 10%, #dd7bbb00 20%),
+    radial-gradient(circle at 40% 40%, #d79f1e 5%, #d79f1e00 15%),
+    radial-gradient(circle at 60% 60%, #5a922c 10%, #5a922c00 20%),
+    radial-gradient(circle at 40% 60%, #4c7894 10%, #4c789400 20%),
     repeating-conic-gradient(
       from 236.84deg at 50% 50%,
-      ${color} 0%,
-      ${color}88 calc(25% / 5),
-      ${color}44 calc(50% / 5),
-      ${color}88 calc(75% / 5),
-      ${color} calc(100% / 5)
+      #dd7bbb 0%,
+      #d79f1e calc(25% / 5),
+      #5a922c calc(50% / 5),
+      #4c7894 calc(75% / 5),
+      #dd7bbb calc(100% / 5)
     )`;
 
   return (
@@ -759,7 +759,6 @@ function Trabalhos({ onContact }) {
                       proximity={60}
                       inactiveZone={0.05}
                       borderWidth={2}
-                      color={tpl.color}
                     />
 
                     {/* Colored bg on hover */}

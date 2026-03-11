@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 import hamburgueriaVideo from "./videos/hamburgueria.mp4";
 import confeitariaVideo from "./videos/confeitaria.mp4";
 import restauranteVideo from "./videos/restaurante.mp4";
@@ -44,6 +44,135 @@ body{font-family:'DM Sans',sans-serif;background:#0b0b0b;color:#e8e4dc;overflow-
 
 input:focus,textarea:focus{outline:none;border-color:rgba(180,255,120,0.5) !important;}
 `;
+
+// ─── Glowing Effect ───────────────────────────────────────────────────────────
+const GlowingEffect = memo(({
+  blur = 0,
+  inactiveZone = 0.7,
+  proximity = 0,
+  spread = 20,
+  glow = false,
+  movementDuration = 2,
+  borderWidth = 1,
+  disabled = false,
+  color = "#b4ff78",
+}) => {
+  const containerRef = useRef(null);
+  const lastPosition = useRef({ x: 0, y: 0 });
+  const animationFrameRef = useRef(0);
+
+  const handleMove = useCallback((e) => {
+    if (!containerRef.current) return;
+    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    animationFrameRef.current = requestAnimationFrame(() => {
+      const element = containerRef.current;
+      if (!element) return;
+      const { left, top, width, height } = element.getBoundingClientRect();
+      const mouseX = e?.x ?? lastPosition.current.x;
+      const mouseY = e?.y ?? lastPosition.current.y;
+      if (e) lastPosition.current = { x: mouseX, y: mouseY };
+      const center = [left + width * 0.5, top + height * 0.5];
+      const distanceFromCenter = Math.hypot(mouseX - center[0], mouseY - center[1]);
+      const inactiveRadius = 0.5 * Math.min(width, height) * inactiveZone;
+      if (distanceFromCenter < inactiveRadius) { element.style.setProperty("--active", "0"); return; }
+      const isActive = mouseX > left - proximity && mouseX < left + width + proximity && mouseY > top - proximity && mouseY < top + height + proximity;
+      element.style.setProperty("--active", isActive ? "1" : "0");
+      if (!isActive) return;
+      const currentAngle = parseFloat(element.style.getPropertyValue("--start")) || 0;
+      let targetAngle = (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) / Math.PI + 90;
+      const angleDiff = ((targetAngle - currentAngle + 180) % 360) - 180;
+      const newAngle = currentAngle + angleDiff;
+      // simple animation without motion library
+      const start = performance.now();
+      const duration = movementDuration * 1000;
+      const animAngle = (timestamp) => {
+        const elapsed = timestamp - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
+        element.style.setProperty("--start", String(currentAngle + angleDiff * ease));
+        if (progress < 1) requestAnimationFrame(animAngle);
+      };
+      requestAnimationFrame(animAngle);
+    });
+  }, [inactiveZone, proximity, movementDuration]);
+
+  useEffect(() => {
+    if (disabled) return;
+    const handleScroll = () => handleMove();
+    const handlePointerMove = (e) => handleMove(e);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    document.body.addEventListener("pointermove", handlePointerMove, { passive: true });
+    return () => {
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      window.removeEventListener("scroll", handleScroll);
+      document.body.removeEventListener("pointermove", handlePointerMove);
+    };
+  }, [handleMove, disabled]);
+
+  const gradient = `radial-gradient(circle, ${color}cc 10%, ${color}00 20%),
+    radial-gradient(circle at 40% 40%, ${color}88 5%, ${color}00 15%),
+    radial-gradient(circle at 60% 60%, ${color}aa 10%, ${color}00 20%),
+    repeating-conic-gradient(
+      from 236.84deg at 50% 50%,
+      ${color} 0%,
+      ${color}88 calc(25% / 5),
+      ${color}44 calc(50% / 5),
+      ${color}88 calc(75% / 5),
+      ${color} calc(100% / 5)
+    )`;
+
+  return (
+    <div ref={containerRef} style={{
+      "--blur": `${blur}px`,
+      "--spread": spread,
+      "--start": "0",
+      "--active": "0",
+      "--bw": `${borderWidth}px`,
+      "--gradient": gradient,
+      position: "absolute", inset: 0,
+      borderRadius: "inherit",
+      pointerEvents: "none",
+      display: disabled ? "none" : "block",
+    }}>
+      <style>{`
+        .glow-inner::after {
+          content: "";
+          position: absolute;
+          border-radius: inherit;
+          inset: calc(-1 * var(--bw));
+          border: var(--bw) solid transparent;
+          background: var(--gradient);
+          background-attachment: fixed;
+          opacity: var(--active);
+          transition: opacity 300ms;
+          -webkit-mask-clip: padding-box, border-box;
+          -webkit-mask-composite: intersect;
+          mask-clip: padding-box, border-box;
+          mask-composite: intersect;
+          -webkit-mask-image: linear-gradient(#0000, #0000),
+            conic-gradient(
+              from calc((var(--start) - var(--spread)) * 1deg),
+              #00000000 0deg,
+              #fff,
+              #00000000 calc(var(--spread) * 2deg)
+            );
+          mask-image: linear-gradient(#0000, #0000),
+            conic-gradient(
+              from calc((var(--start) - var(--spread)) * 1deg),
+              #00000000 0deg,
+              #fff,
+              #00000000 calc(var(--spread) * 2deg)
+            );
+        }
+      `}</style>
+      <div className="glow-inner" style={{
+        position: "absolute", inset: 0,
+        borderRadius: "inherit",
+      }} />
+    </div>
+  );
+});
+GlowingEffect.displayName = "GlowingEffect";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 // SVG icons por categoria
@@ -168,11 +297,17 @@ function Navbar({ onContact }) {
 // ─── Hero Indicators ──────────────────────────────────────────────────────────
 const INDICATORS = [
   { value: "12+",   label: "projetos desenvolvidos"              },
+  { value: "→",     label: "sites rápidos e otimizados"          },
   { value: "AI",    label: "desenvolvimento com apoio de IA"     },
+  { value: "→",     label: "foco em performance e conversão"     },
   { value: "100%",  label: "interfaces responsivas"              },
+  { value: "→",     label: "entrega moderna e eficiente"         },
   { value: "</>",   label: "código limpo e organizado"           },
+  { value: "→",     label: "projetos do zero ao ar em dias"      },
   { value: "SEO",   label: "otimizado para buscas"               },
+  { value: "→",     label: "mais clientes pelo Google"           },
   { value: "24h",   label: "suporte pós-entrega"                 },
+  { value: "→",     label: "parceria de longo prazo"             },
 ];
 
 function HeroIndicators() {
@@ -597,10 +732,11 @@ function Trabalhos({ onContact }) {
                     style={{
                       background: "#0e0e0e", border: "none",
                       padding: "0", cursor: "pointer", textAlign: "left",
-                      position: "relative", overflow: "hidden",
+                      position: "relative", overflow: "visible",
                       color: "inherit", fontFamily: "'DM Sans'",
                       aspectRatio: idx === 0 ? "auto" : "auto",
                       transition: "all .3s",
+                      borderRadius: "2px",
                     }}
                     onMouseEnter={e => {
                       e.currentTarget.querySelector(".cat-bg").style.opacity = "1";
@@ -615,7 +751,19 @@ function Trabalhos({ onContact }) {
                       if (e.currentTarget.querySelector(".cat-line")) e.currentTarget.querySelector(".cat-line").style.width = "0%";
                     }}>
 
+                    {/* Glowing border effect */}
+                    <GlowingEffect
+                      spread={35}
+                      glow={true}
+                      disabled={false}
+                      proximity={60}
+                      inactiveZone={0.05}
+                      borderWidth={2}
+                      color={tpl.color}
+                    />
+
                     {/* Colored bg on hover */}
+                    <div style={{ position: "relative", overflow: "hidden", borderRadius: "2px" }}>
                     <div className="cat-bg" style={{
                       position: "absolute", inset: 0, opacity: 0,
                       background: `linear-gradient(135deg, ${tpl.color}18 0%, ${tpl.color}06 100%)`,
@@ -675,6 +823,7 @@ function Trabalhos({ onContact }) {
                         }}>↗</div>
                       </div>
                     </div>
+                    </div>{/* fim wrapper interno */}
                   </button>
                 );
               })}

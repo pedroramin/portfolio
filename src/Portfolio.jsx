@@ -46,97 +46,81 @@ input:focus,textarea:focus{outline:none;border-color:rgba(180,255,120,0.5) !impo
 `;
 
 // ─── Glowing Effect ───────────────────────────────────────────────────────────
-const GlowingEffect = memo(({ blur=0, inactiveZone=0.7, proximity=0, spread=20, borderWidth=1, disabled=false }) => {
-  const containerRef = useRef(null);
-  const lastPosition = useRef({ x:0, y:0 });
-  const animationFrameRef = useRef(0);
-
-  const handleMove = useCallback((e) => {
-    if (!containerRef.current) return;
-    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    animationFrameRef.current = requestAnimationFrame(() => {
-      const el = containerRef.current;
-      if (!el) return;
-      const { left, top, width, height } = el.getBoundingClientRect();
-      const mouseX = e?.x ?? lastPosition.current.x;
-      const mouseY = e?.y ?? lastPosition.current.y;
-      if (e) lastPosition.current = { x: mouseX, y: mouseY };
-      const center = [left + width * 0.5, top + height * 0.5];
-      const dist = Math.hypot(mouseX - center[0], mouseY - center[1]);
-      if (dist < 0.5 * Math.min(width, height) * inactiveZone) { el.style.setProperty("--active","0"); return; }
-      const isActive = mouseX > left-proximity && mouseX < left+width+proximity && mouseY > top-proximity && mouseY < top+height+proximity;
-      el.style.setProperty("--active", isActive ? "1" : "0");
-      if (!isActive) return;
-      const angle = (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) / Math.PI + 90;
-      el.style.setProperty("--start", String(angle));
-    });
-  }, [inactiveZone, proximity]);
+const GlowingEffect = memo(({ spread = 40, borderWidth = 2, proximity = 64, inactiveZone = 0.01, disabled = false }) => {
+  const ref = useRef(null);
+  const frame = useRef(0);
 
   useEffect(() => {
     if (disabled) return;
-    const onScroll = () => handleMove();
-    const onMove = (e) => handleMove(e);
-    window.addEventListener("scroll", onScroll, { passive:true });
-    document.body.addEventListener("pointermove", onMove, { passive:true });
-    return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      window.removeEventListener("scroll", onScroll);
-      document.body.removeEventListener("pointermove", onMove);
+
+    const onMove = (e) => {
+      if (frame.current) cancelAnimationFrame(frame.current);
+      frame.current = requestAnimationFrame(() => {
+        const el = ref.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const inX = e.clientX > rect.left - proximity && e.clientX < rect.right + proximity;
+        const inY = e.clientY > rect.top - proximity && e.clientY < rect.bottom + proximity;
+        const active = inX && inY ? "1" : "0";
+        const angle = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
+        el.style.setProperty("--glow-active", active);
+        el.style.setProperty("--glow-angle", `${angle}deg`);
+      });
     };
-  }, [handleMove, disabled]);
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame.current);
+      window.removeEventListener("pointermove", onMove);
+    };
+  }, [disabled, proximity]);
 
   return (
-    <div ref={containerRef} style={{
-      "--spread": spread, "--start":"0", "--active":"0",
-      "--bw": `${borderWidth}px`,
-      position:"absolute", inset:0, borderRadius:"inherit", pointerEvents:"none",
-    }}>
+    <>
       <style>{`
-        .glow-inner::after {
+        .glow-wrap {
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          pointer-events: none;
+          --glow-active: 0;
+          --glow-angle: 0deg;
+          --glow-spread: ${spread}deg;
+          --glow-bw: ${borderWidth}px;
+        }
+        .glow-wrap::before {
           content: "";
           position: absolute;
+          inset: calc(-1 * var(--glow-bw));
           border-radius: inherit;
-          inset: calc(-1 * var(--bw));
-          border: var(--bw) solid transparent;
-          background:
-            radial-gradient(circle, #dd7bbb 10%, transparent 20%),
-            radial-gradient(circle at 40% 40%, #d79f1e 5%, transparent 15%),
-            radial-gradient(circle at 60% 60%, #5a922c 10%, transparent 20%),
-            radial-gradient(circle at 40% 60%, #4c7894 10%, transparent 20%),
-            repeating-conic-gradient(from 236.84deg at 50% 50%,
-              #dd7bbb 0%,
-              #d79f1e calc(25% / 5),
-              #5a922c calc(50% / 5),
-              #4c7894 calc(75% / 5),
-              #dd7bbb calc(100% / 5)
-            );
-          background-origin: border-box;
-          opacity: var(--active);
-          transition: opacity 300ms;
-          -webkit-mask-clip: padding-box, border-box;
-          -webkit-mask-composite: intersect;
-          mask-clip: padding-box, border-box;
-          mask-composite: intersect;
-          -webkit-mask-image:
-            linear-gradient(#000, #000),
-            conic-gradient(
-              from calc((var(--start) - var(--spread)) * 1deg),
-              transparent 0deg,
-              white,
-              transparent calc(var(--spread) * 2deg)
-            );
-          mask-image:
-            linear-gradient(#000, #000),
-            conic-gradient(
-              from calc((var(--start) - var(--spread)) * 1deg),
-              transparent 0deg,
-              white,
-              transparent calc(var(--spread) * 2deg)
-            );
+          background: conic-gradient(
+            from calc(var(--glow-angle) - var(--glow-spread)),
+            transparent 0deg,
+            #dd7bbb,
+            #d79f1e,
+            #5a922c,
+            #4c7894,
+            transparent calc(var(--glow-spread) * 2)
+          );
+          opacity: var(--glow-active);
+          transition: opacity 400ms ease;
+          -webkit-mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor;
+          mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+          mask-composite: exclude;
+          padding: var(--glow-bw);
         }
       `}</style>
-      <div className="glow-inner" style={{ position:"absolute", inset:0, borderRadius:"inherit" }} />
-    </div>
+      <div ref={ref} className="glow-wrap" />
+    </>
   );
 });
 GlowingEffect.displayName = "GlowingEffect";

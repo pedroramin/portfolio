@@ -723,106 +723,87 @@ function Trabalhos({ onContact }) {
         {/* ── Grade de categorias ── */}
         {!selectedCat && (
           <div className="fade-in">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "2px" }}>
-              {TEMPLATES.map((tpl, idx) => {
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "16px" }}>
+              {TEMPLATES.map((tpl) => {
                 const count = (VIDEOS_BY_CAT[tpl.id] || []).length;
                 const hasProjects = count > 0;
                 return (
                   <button key={tpl.id} onClick={() => setSelectedCat(tpl)}
                     style={{
-                      background: "#0e0e0e", border: "none",
-                      padding: "0", cursor: "pointer", textAlign: "left",
-                      position: "relative", overflow: "visible",
+                      background: "transparent", border: "none",
+                      padding: "1px", cursor: "pointer", textAlign: "left",
+                      position: "relative",
                       color: "inherit", fontFamily: "'DM Sans'",
-                      aspectRatio: idx === 0 ? "auto" : "auto",
-                      transition: "all .3s",
-                      borderRadius: "2px",
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.querySelector(".cat-bg").style.opacity = "1";
-                      e.currentTarget.querySelector(".cat-label").style.color = "#fff";
-                      e.currentTarget.querySelector(".cat-arrow").style.transform = "translate(3px, -3px)";
-                      if (e.currentTarget.querySelector(".cat-line")) e.currentTarget.querySelector(".cat-line").style.width = "100%";
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.querySelector(".cat-bg").style.opacity = "0";
-                      e.currentTarget.querySelector(".cat-label").style.color = "#888";
-                      e.currentTarget.querySelector(".cat-arrow").style.transform = "";
-                      if (e.currentTarget.querySelector(".cat-line")) e.currentTarget.querySelector(".cat-line").style.width = "0%";
+                      borderRadius: "20px",
                     }}>
 
                     {/* Glowing border effect */}
                     <GlowingEffect
-                      spread={35}
+                      spread={40}
                       glow={true}
                       disabled={false}
-                      proximity={60}
-                      inactiveZone={0.05}
+                      proximity={64}
+                      inactiveZone={0.01}
                       borderWidth={2}
                     />
 
-                    {/* Colored bg on hover */}
-                    <div style={{ position: "relative", overflow: "hidden", borderRadius: "2px" }}>
-                    <div className="cat-bg" style={{
-                      position: "absolute", inset: 0, opacity: 0,
-                      background: `linear-gradient(135deg, ${tpl.color}18 0%, ${tpl.color}06 100%)`,
-                      transition: "opacity .3s",
-                    }} />
-
-                    {/* Top accent line */}
-                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: `${tpl.color}30` }} />
-                    <div className="cat-line" style={{
-                      position: "absolute", top: 0, left: 0, height: "2px",
-                      width: "0%", background: tpl.color,
-                      transition: "width .4s ease",
-                    }} />
-
-                    <div style={{ position: "relative", zIndex: 1, padding: "28px 24px 24px" }}>
-                      {/* Top row: emoji + badge */}
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+                    {/* Outer border container */}
+                    <div style={{
+                      borderRadius: "20px",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      padding: "2px",
+                      background: "transparent",
+                    }}>
+                      {/* Inner card */}
+                      <div style={{
+                        background: "#0f0f0f",
+                        borderRadius: "18px",
+                        border: "1px solid rgba(255,255,255,0.05)",
+                        padding: "24px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        minHeight: "200px",
+                        gap: "24px",
+                      }}>
+                        {/* Icon */}
                         <div style={{
-                          width: "48px", height: "48px", borderRadius: "12px",
-                          background: `${tpl.color}15`, border: `1px solid ${tpl.color}25`,
+                          width: "36px", height: "36px", borderRadius: "8px",
+                          background: "rgba(255,255,255,0.06)",
+                          border: "1px solid rgba(255,255,255,0.1)",
                           display: "flex", alignItems: "center", justifyContent: "center",
-                        }}>{CAT_ICONS[tpl.id]?.(tpl.color)}</div>
+                        }}>
+                          {CAT_ICONS[tpl.id]?.("rgba(255,255,255,0.8)")}
+                        </div>
 
-                        {hasProjects ? (
+                        {/* Text */}
+                        <div>
                           <div style={{
-                            display: "flex", alignItems: "center", gap: "5px",
-                            background: `${tpl.color}15`, borderRadius: "20px",
-                            padding: "4px 10px", border: `1px solid ${tpl.color}30`,
+                            display: "flex", justifyContent: "space-between", alignItems: "center",
+                            marginBottom: "10px",
                           }}>
-                            <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: tpl.color, animation: "blink 1.5s ease infinite" }} />
-                            <span style={{ fontSize: "10px", color: tpl.color, letterSpacing: ".5px" }}>EXEMPLO</span>
+                            <h3 style={{
+                              fontSize: "18px", fontWeight: 600,
+                              color: "#e8e4dc", letterSpacing: "-0.3px", lineHeight: 1.3,
+                            }}>{tpl.label}</h3>
+                            {hasProjects ? (
+                              <div style={{
+                                display: "flex", alignItems: "center", gap: "5px",
+                                background: "rgba(255,255,255,0.05)", borderRadius: "20px",
+                                padding: "3px 10px", border: "1px solid rgba(255,255,255,0.1)",
+                                flexShrink: 0,
+                              }}>
+                                <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(255,255,255,0.5)", animation: "blink 1.5s ease infinite" }} />
+                                <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", letterSpacing: ".5px" }}>EXEMPLO</span>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: "10px", color: "#2a2a2a", letterSpacing: "1px", padding: "3px 10px", border: "1px solid #1a1a1a", borderRadius: "20px", flexShrink: 0 }}>EM BREVE</span>
+                            )}
                           </div>
-                        ) : (
-                          <span style={{ fontSize: "10px", color: "#2a2a2a", letterSpacing: "1px", padding: "4px 10px", border: "1px solid #1a1a1a", borderRadius: "20px" }}>EM BREVE</span>
-                        )}
-                      </div>
-
-                      {/* Name */}
-                      <div className="cat-label" style={{
-                        fontFamily: "'Bebas Neue'", fontSize: "26px", letterSpacing: "1px",
-                        color: "#888", marginBottom: "6px", transition: "color .3s",
-                      }}>{tpl.label}</div>
-
-                      {/* Desc */}
-                      <p style={{ fontSize: "12px", color: "#333", lineHeight: 1.6, marginBottom: "20px" }}>{tpl.desc}</p>
-
-                      {/* Bottom row */}
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: "11px", color: "#2a2a2a" }}>
-                          {hasProjects ? `${count} projeto${count > 1 ? "s" : ""}` : "—"}
-                        </span>
-                        <div className="cat-arrow" style={{
-                          width: "32px", height: "32px", borderRadius: "50%",
-                          border: `1px solid ${tpl.color}30`, background: `${tpl.color}10`,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: "14px", color: tpl.color, transition: "transform .25s",
-                        }}>↗</div>
+                          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.35)", lineHeight: 1.6, margin: 0 }}>{tpl.desc}</p>
+                        </div>
                       </div>
                     </div>
-                    </div>{/* fim wrapper interno */}
                   </button>
                 );
               })}

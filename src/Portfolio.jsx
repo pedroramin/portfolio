@@ -77,20 +77,8 @@ const GlowingEffect = memo(({
       const isActive = mouseX > left - proximity && mouseX < left + width + proximity && mouseY > top - proximity && mouseY < top + height + proximity;
       element.style.setProperty("--active", isActive ? "1" : "0");
       if (!isActive) return;
-      const currentAngle = parseFloat(element.style.getPropertyValue("--start")) || 0;
-      let targetAngle = (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) / Math.PI + 90;
-      const angleDiff = ((targetAngle - currentAngle + 180) % 360) - 180;
-      const newAngle = currentAngle + angleDiff;
-      const start = performance.now();
-      const duration = movementDuration * 1000;
-      const animAngle = (timestamp) => {
-        const elapsed = timestamp - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
-        element.style.setProperty("--start", String(currentAngle + angleDiff * ease));
-        if (progress < 1) requestAnimationFrame(animAngle);
-      };
-      requestAnimationFrame(animAngle);
+      const targetAngle = (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) / Math.PI + 90;
+      element.style.setProperty("--start", String(targetAngle));
     });
   }, [inactiveZone, proximity, movementDuration]);
 
@@ -769,11 +757,11 @@ function Trabalhos({ onContact }) {
                         {/* Icon */}
                         <div style={{
                           width: "36px", height: "36px", borderRadius: "8px",
-                          background: "rgba(255,255,255,0.06)",
-                          border: "1px solid rgba(255,255,255,0.1)",
+                          background: "rgba(180,255,120,0.08)",
+                          border: "1px solid rgba(180,255,120,0.2)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                         }}>
-                          {CAT_ICONS[tpl.id]?.("rgba(255,255,255,0.8)")}
+                          {CAT_ICONS[tpl.id]?.(ACCENT)}
                         </div>
 
                         {/* Text */}
@@ -784,7 +772,7 @@ function Trabalhos({ onContact }) {
                           }}>
                             <h3 style={{
                               fontSize: "18px", fontWeight: 600,
-                              color: "#e8e4dc", letterSpacing: "-0.3px", lineHeight: 1.3,
+                              color: ACCENT, letterSpacing: "-0.3px", lineHeight: 1.3,
                             }}>{tpl.label}</h3>
                             {hasProjects ? (
                               <div style={{

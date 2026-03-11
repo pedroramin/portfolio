@@ -21,6 +21,8 @@ body{font-family:'DM Sans',sans-serif;background:#0b0b0b;color:#e8e4dc;overflow-
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
 @keyframes spin{to{transform:rotate(360deg);}}
+@keyframes pathDraw{0%{stroke-dashoffset:var(--dash-len);}50%{stroke-dashoffset:0;}100%{stroke-dashoffset:calc(var(--dash-len)*-1);}}
+@keyframes pathFade{0%,100%{opacity:.3;}50%{opacity:.7;}}
 @keyframes grain{
   0%,100%{transform:translate(0,0);}
   10%{transform:translate(-2%,-3%);}
@@ -378,6 +380,44 @@ function HeroIndicators() {
   );
 }
 
+// ─── Floating Paths Background ────────────────────────────────────────────────
+function FloatingPaths({ position }) {
+  const paths = Array.from({ length: 36 }, (_, i) => ({
+    id: i,
+    d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${380 - i * 5 * position} -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${152 - i * 5 * position} ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${684 - i * 5 * position} ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
+    width: 0.5 + i * 0.03,
+    opacity: 0.08 + i * 0.018,
+    duration: 18 + (i % 7) * 3,
+    delay: -(i * 1.1),
+  }));
+
+  return (
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+      <svg
+        style={{ width: "100%", height: "100%" }}
+        viewBox="0 0 696 316"
+        fill="none"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        {paths.map((path) => (
+          <path
+            key={path.id}
+            d={path.d}
+            stroke={ACCENT}
+            strokeWidth={path.width}
+            strokeOpacity={path.opacity}
+            strokeDasharray="600 1200"
+            strokeDashoffset="0"
+            style={{
+              animation: `pathDraw ${path.duration}s linear ${path.delay}s infinite, pathFade ${path.duration}s ease-in-out ${path.delay}s infinite`,
+            }}
+          />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero({ onContact }) {
   const [tick, setTick] = useState(true);
@@ -412,13 +452,16 @@ function Hero({ onContact }) {
         userSelect: "none", pointerEvents: "none", whiteSpace: "nowrap", lineHeight: 1,
       }}>PEDRO RAMOS</div>
 
-      {/* Floating glow */}
+      {/* Floating paths background */}
+      <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+        <FloatingPaths position={1} />
+        <FloatingPaths position={-1} />
+      </div>
+
+      {/* Radial fade para escurecer bordas */}
       <div style={{
-        position: "absolute", top: "20%", right: "8%",
-        width: "280px", height: "280px", borderRadius: "50%",
-        background: `radial-gradient(circle, ${ACCENT}12 0%, transparent 70%)`,
-        animation: "float 4s ease-in-out infinite",
-        pointerEvents: "none",
+        position: "absolute", inset: 0, pointerEvents: "none",
+        background: "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, #0b0b0b 100%)",
       }} />
 
       {/* Two-column layout */}

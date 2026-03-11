@@ -401,7 +401,11 @@ function HeroCanvas() {
   const allPaths = [...makePaths(1), ...makePaths(-1)];
 
   return (
-    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+    <div style={{
+      position: "fixed", inset: 0,
+      pointerEvents: "none", overflow: "hidden",
+      zIndex: 0,
+    }}>
       <svg
         viewBox="0 0 696 316"
         preserveAspectRatio="xMidYMid slice"
@@ -412,14 +416,13 @@ function HeroCanvas() {
           <path
             key={p.id}
             d={p.d}
-            stroke="#b4ff78"
+            stroke="rgba(255,255,255,1)"
             strokeWidth={p.width}
             fill="none"
           >
-            {/* Opacidade animada em loop — pulsa suavemente */}
             <animate
               attributeName="stroke-opacity"
-              values={`${p.opacity * 0.5};${p.opacity};${p.opacity * 0.5}`}
+              values={`${p.opacity * 0.4};${p.opacity};${p.opacity * 0.4}`}
               dur={`${p.duration}s`}
               begin={`${-p.delay}s`}
               repeatCount="indefinite"
@@ -455,7 +458,7 @@ function Hero({ onContact }) {
     <section style={{
       minHeight: "100vh", display: "flex", flexDirection: "column",
       justifyContent: "center", padding: "80px 40px 60px",
-      position: "relative", overflow: "hidden",
+      position: "relative",
       maxWidth: "1200px", margin: "0 auto",
     }}>
       {/* Big background text */}
@@ -465,17 +468,6 @@ function Hero({ onContact }) {
         color: "rgba(255,255,255,0.025)", letterSpacing: "-4px",
         userSelect: "none", pointerEvents: "none", whiteSpace: "nowrap", lineHeight: 1,
       }}>PEDRO RAMOS</div>
-
-      {/* Floating paths background */}
-      <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-        <HeroCanvas />
-      </div>
-
-      {/* Radial fade para escurecer bordas */}
-      <div style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        background: "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, #0b0b0b 100%)",
-      }} />
 
       {/* Two-column layout */}
       <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "40px" }}>
@@ -1245,8 +1237,17 @@ export default function App() {
     <>
       <style>{FONTS + CSS}</style>
       <Grain />
-      <Navbar onContact={scrollToForm} />
-      <Hero onContact={scrollToForm} />
+      {/* Background paths — wrapper 100vh sem maxWidth, cobre tela toda */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0,
+        height: "100vh", overflow: "hidden", pointerEvents: "none", zIndex: 0,
+      }}>
+        <HeroCanvas />
+      </div>
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <Navbar onContact={scrollToForm} />
+        <Hero onContact={scrollToForm} />
+      </div>
       <Marquee />
       <Trabalhos onContact={scrollToForm} />
       <Contact formRef={formRef} />

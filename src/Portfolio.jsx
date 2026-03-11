@@ -378,119 +378,57 @@ function HeroIndicators() {
   );
 }
 
-// ─── Floating Paths Background (Canvas) ──────────────────────────────────────
+// ─── Floating Paths Background ────────────────────────────────────────────────
 function HeroCanvas() {
-  const canvasRef = useRef(null);
-  const rafRef = useRef(null);
+  const makePaths = (position) =>
+    Array.from({ length: 36 }, (_, i) => ({
+      id: `${position > 0 ? "p" : "n"}-${i}`,
+      d: [
+        `M${-380 - i * 5 * position} ${-189 + i * 6}`,
+        `C${-380 - i * 5 * position} ${-189 + i * 6}`,
+        `${-312 - i * 5 * position} ${216 - i * 6}`,
+        `${152 - i * 5 * position} ${343 - i * 6}`,
+        `C${616 - i * 5 * position} ${470 - i * 6}`,
+        `${684 - i * 5 * position} ${875 - i * 6}`,
+        `${684 - i * 5 * position} ${875 - i * 6}`,
+      ].join(" "),
+      width: 0.5 + i * 0.03,
+      opacity: 0.1 + i * 0.03,
+      duration: 20 + (i % 10) * 3,
+      delay: i * 0.6,
+    }));
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-
-    // Each path: bezier curve with a "dash" that travels along it
-    const NUM = 28;
-    const lines = Array.from({ length: NUM }, (_, i) => {
-      const side = i % 2 === 0 ? 1 : -1;
-      const t = i / NUM;
-      return {
-        // Control points parametrized like the original component
-        x0: -380 + i * 5 * side,
-        y0: -189 + i * 6,
-        cx1: -312 + i * 5 * side,
-        cy1: 216 - i * 6,
-        cx2: 152 + i * 5 * side,
-        cy2: 343 - i * 6,
-        x1: 684 - i * 5 * side,
-        y1: 875 - i * 6,
-        width: 0.4 + i * 0.025,
-        baseOpacity: 0.04 + t * 0.12,
-        speed: 0.00018 + t * 0.00006,
-        offset: i * 0.07,          // stagger start
-        dashLen: 0.18 + t * 0.1,   // fraction of path shown
-      };
-    });
-
-    let W, H, scaleX, scaleY;
-    const resize = () => {
-      W = canvas.offsetWidth;
-      H = canvas.offsetHeight;
-      canvas.width = W;
-      canvas.height = H;
-      // SVG viewBox was 696 x 316 → map to canvas
-      scaleX = W / 696;
-      scaleY = H / 316;
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-
-    // Sample a cubic bezier at t ∈ [0,1]
-    const bezier = (t, p0, p1, p2, p3) => {
-      const u = 1 - t;
-      return u*u*u*p0 + 3*u*u*t*p1 + 3*u*t*t*p2 + t*t*t*p3;
-    };
-
-    let now = performance.now();
-    const draw = (ts) => {
-      const dt = ts - now; now = ts;
-      ctx.clearRect(0, 0, W, H);
-
-      lines.forEach(l => {
-        l.offset = (l.offset + l.speed * dt) % 1;
-        const start = l.offset;
-        const end = (start + l.dashLen) % 1;
-
-        // Build path as a series of small segments, only within [start, end]
-        const STEPS = 60;
-        ctx.beginPath();
-        let drawing = false;
-        for (let s = 0; s <= STEPS; s++) {
-          const frac = s / STEPS;
-          // Check if this fraction is "inside" the dash window
-          const inRange = end > start
-            ? frac >= start && frac <= end
-            : frac >= start || frac <= end;
-
-          const px = bezier(frac, l.x0, l.cx1, l.cx2, l.x1) * scaleX;
-          const py = bezier(frac, l.y0, l.cy1, l.cy2, l.y1) * scaleY;
-
-          if (inRange) {
-            if (!drawing) { ctx.moveTo(px, py); drawing = true; }
-            else ctx.lineTo(px, py);
-          } else {
-            drawing = false;
-          }
-        }
-
-        // Opacity pulse: brightest at centre of dash
-        const centerFrac = (start + l.dashLen / 2) % 1;
-        const pulse = 0.5 + 0.5 * Math.sin(centerFrac * Math.PI * 2);
-        ctx.strokeStyle = `rgba(180,255,120,${l.baseOpacity * (0.6 + pulse * 0.4)})`;
-        ctx.lineWidth = l.width;
-        ctx.stroke();
-      });
-
-      rafRef.current = requestAnimationFrame(draw);
-    };
-
-    rafRef.current = requestAnimationFrame(draw);
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      ro.disconnect();
-    };
-  }, []);
+  const allPaths = [...makePaths(1), ...makePaths(-1)];
 
   return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: "absolute", inset: 0,
-        width: "100%", height: "100%",
-        pointerEvents: "none",
-        opacity: 0.85,
-      }}
-    />
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+      <svg
+        viewBox="0 0 696 316"
+        preserveAspectRatio="xMidYMid slice"
+        fill="none"
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+      >
+        {allPaths.map((p) => (
+          <path
+            key={p.id}
+            d={p.d}
+            stroke="#b4ff78"
+            strokeWidth={p.width}
+            fill="none"
+          >
+            {/* Opacidade animada em loop — pulsa suavemente */}
+            <animate
+              attributeName="stroke-opacity"
+              values={`${p.opacity * 0.5};${p.opacity};${p.opacity * 0.5}`}
+              dur={`${p.duration}s`}
+              begin={`${-p.delay}s`}
+              repeatCount="indefinite"
+              calcMode="linear"
+            />
+          </path>
+        ))}
+      </svg>
+    </div>
   );
 }
 
